@@ -1,4 +1,4 @@
-import { CheckCircleIcon, ExclamationIcon, LockClosedIcon } from '@heroicons/react/solid'
+import { ExclamationIcon, LockClosedIcon } from '@heroicons/react/solid'
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +7,7 @@ const Login = () => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [msg, setMsg] = useState('');
     const navigate = useNavigate();
 
     const Auth = async(e) => {
@@ -16,14 +16,14 @@ const Login = () => {
             await axios.post('http://localhost:5000/login', {
                 email: email,
                 password: password
-            })
-            navigate('/home')
+            });
+            navigate('/home');
         } catch (error) {
             if (error.response) {
-                setError(error.response.data.msg);
-                setTimeout(() => {
-                    setError('')
-                }, 3000)
+                setMsg(error.response.data.msg);
+                setTimeout(() => { 
+                    setMsg('')
+                  }, 4000);
             }
         }
     }
@@ -41,17 +41,17 @@ const Login = () => {
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
                 <p className="mt-2 text-center text-sm text-gray-600">
                 Or{' '}
-                <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+                <a href="/#" className="font-medium text-indigo-600 hover:text-indigo-500">
                     start your 14-day free trial
                 </a>
                 </p>
             </div>
             <form className="mt-8 space-y-6" onSubmit={Auth}>
                 {
-                    error && (
+                    msg && (
                         <div className='text-center rounded-lg border-4 border-rose-100 border-l-rose-300'>
                             <ExclamationIcon className='h-6 w-6 fill-red-500 -mb-5'/>
-                            <p className='m-3 text-slate-500'>{error}</p>
+                            <p className='m-3 text-slate-500'>{msg}</p>
                         </div>
                     )
                 }
@@ -96,7 +96,7 @@ const Login = () => {
                     </div>
 
                     <div className="text-sm">
-                        <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+                        <a href="/#" className="font-medium text-indigo-600 hover:text-indigo-500">
                         Forgot your password?
                         </a>
                     </div>
