@@ -1,6 +1,7 @@
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
+import { UserIcon, ArrowCircleRightIcon } from '@heroicons/react/solid'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -114,7 +115,7 @@ const NavBar = () => {
                                 href="/profile"
                                 className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                             >
-                                Your Profile
+                                <UserIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Your Profile</p>
                             </a>
                             )}
                         </Menu.Item>
@@ -124,7 +125,7 @@ const NavBar = () => {
                                 onClick={Logout}
                                 className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-left text-sm text-red-500 w-full')}
                             >
-                                Sign out
+                                <ArrowCircleRightIcon className='h-7 w-7 fill-red-300 -mb-6'/><p className='ml-8 text-slate-500'>Sign out</p>
                             </button>
                             )}
                         </Menu.Item>

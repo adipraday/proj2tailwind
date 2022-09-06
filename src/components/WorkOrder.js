@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { useState, useEffect } from "react";
+import { UserCircleIcon, MapIcon, DocumentAddIcon, InformationCircleIcon } from '@heroicons/react/solid';
 
 const WorkOrder = () => {
 
@@ -12,10 +13,6 @@ const WorkOrder = () => {
     const [token, setToken] = useState('');
     const [expire, setExpire] = useState('');
     const [workorders, setWorkOrders] = useState('');
-
-    const BtAddWorkOrder = () => {
-        navigate('/addworkorder');
-    }
 
     useEffect(() => {
         refreshToken()
@@ -66,7 +63,7 @@ const WorkOrder = () => {
     const hapusDataWO = async (id) =>{
         try {
             await axios.delete(`http://localhost:5000/deleteworkorder/${id}`)
-            .then((response) => {
+            .then(() => {
                 window.location.reload(false)
                 return alert("Data telah dihapus")
           }
@@ -76,40 +73,12 @@ const WorkOrder = () => {
         }
     }
 
+    const terbitkanWO = async(id) => {
+        navigate(`/terbitkanwo/${id}`);
+    }
+
     return(
         <>
-
-        <div className="container mx-auto bg-gray-50 p-8 antialiased">
-            <table className="float-right bottom">
-                <thead>
-                    <tr>
-                        <td>
-                            <div>
-                                <label className="sr-only">
-                                    Masukkan No. Work Order
-                                </label>
-                                <input
-                                type="text"
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                placeholder="Masukkan No. Work Order"
-                                />
-                            </div>
-                        </td>
-                        <td>
-                            <button
-                                className="inline-block px-6 py-2.5 bg-green-400 
-                                text-white font-medium text-xs leading-tight 
-                                uppercase rounded-full shadow-md hover:bg-green-500 
-                                hover:shadow-lg focus:bg-green-700 focus:shadow-lg 
-                                focus:outline-none focus:ring-0 active:bg-green-600 
-                                active:shadow-lg transition duration-150 ease-in-out btn-lg">
-                                Terbitkan Work Order
-                            </button>
-                        </td>
-                    </tr>
-                </thead>
-            </table>
-        </div>
 
         <div className="container mx-auto bg-gray-50 p-8 antialiased">
             <div className="flex flex-col">
@@ -120,22 +89,19 @@ const WorkOrder = () => {
                                 <thead className="bg-blue-100 border-b">
                                     <tr>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                        #
+                                    <p className='ml-7 text-slate-500'>#</p>
                                     </th>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                        No. Work Order
+                                    <UserCircleIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Cust Info</p>
                                     </th>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                        Cust Info
+                                    <MapIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Location</p>
                                     </th>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                        Location
+                                    <DocumentAddIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Description</p>
                                     </th>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                        Description
-                                    </th>
-                                    <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                        Status
+                                    <InformationCircleIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Status</p>
                                     </th>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                                         .
@@ -146,9 +112,6 @@ const WorkOrder = () => {
                                 { Object.values(workorders).map((workorder, index) => (
                                     <tr className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100" key={workorder.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}.</td>
-                                        <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                                            <b>{workorder.no_wo}</b>
-                                        </td>
                                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                                             <b>{workorder.nama_client} / {workorder.id_pelanggan}</b><br/>
                                             {workorder.email} / {workorder.contact_person}
@@ -168,6 +131,16 @@ const WorkOrder = () => {
                                             {workorder.updatedAt}
                                         </td>
                                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                                <button
+                                                onClick={()=> terbitkanWO(workorder.id)}
+                                                className="inline-block px-6 py-2.5 bg-green-600 
+                                                text-white font-medium text-xs leading-tight 
+                                                uppercase rounded-full shadow-md hover:bg-green-700 
+                                                hover:shadow-lg focus:bg-green-700 focus:shadow-lg 
+                                                focus:outline-none focus:ring-0 active:bg-yellow-800 
+                                                active:shadow-lg transition duration-150 ease-in-out"
+                                                >Update</button>
+                                            {' '}
                                             <button
                                                 onClick={()=> hapusDataWO(workorder.id)}
                                                 className="inline-block px-6 py-2.5 bg-red-600 

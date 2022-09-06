@@ -1,7 +1,6 @@
 import { CheckCircleIcon, ExclamationIcon, LockClosedIcon } from '@heroicons/react/solid'
 import { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
 
@@ -16,7 +15,6 @@ const Register = () => {
     const [confPassword, setConfPassword] = useState('');
     const [msg, setMsg] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
     const Register = async(e) => {
         e.preventDefault();

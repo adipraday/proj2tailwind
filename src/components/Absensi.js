@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import jwt_decode from "jwt-decode";
-import { CheckCircleIcon, ExclamationIcon } from '@heroicons/react/solid'
-import {  } from "react-router-dom";
+import { CheckCircleIcon, ExclamationIcon, UserCircleIcon, CalendarIcon, DocumentAddIcon, InformationCircleIcon } from '@heroicons/react/solid';
 
 const Absensi = () => {
 
@@ -134,16 +133,16 @@ const Absensi = () => {
                                         #
                                     </th>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                        Nama Karyawan
+                                    <UserCircleIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Nama Karyawan</p> 
                                     </th>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                        Tanggal
+                                    <CalendarIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Tanggal</p>
                                     </th>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                        Keterangan
+                                    <InformationCircleIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>status</p>
                                     </th>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                        Note
+                                    <DocumentAddIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Note</p>
                                     </th>
                                     <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                                         .
@@ -167,15 +166,6 @@ const Absensi = () => {
                                             {absensi.note}
                                         </td>
                                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                                            <button
-                                                className="inline-block px-6 py-2.5 bg-blue-600 
-                                                text-white font-medium text-xs leading-tight 
-                                                uppercase rounded-full shadow-md hover:bg-blue-700 
-                                                hover:shadow-lg focus:bg-blue-700 focus:shadow-lg 
-                                                focus:outline-none focus:ring-0 active:bg-green-800 
-                                                active:shadow-lg transition duration-150 ease-in-out">
-                                                Info
-                                            </button>{' '}
                                             <button
                                                 onClick={()=> hapusDataAbsensi(absensi.id)}
                                                 className="inline-block px-6 py-2.5 bg-red-600 

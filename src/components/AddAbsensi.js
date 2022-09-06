@@ -8,7 +8,7 @@ const AddAbsensi = () => {
 
     const navigate = useNavigate();
 
-    const [name, setName] = useState('');
+    const [, setName] = useState('');
     const [token, setToken] = useState('');
     const [expire, setExpire] = useState('');
 

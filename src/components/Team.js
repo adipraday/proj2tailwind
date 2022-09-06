@@ -3,11 +3,12 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import jwt_decode from "jwt-decode";
+import { UserCircleIcon, MailIcon, PhoneIcon, ShieldCheckIcon, ArrowCircleDownIcon, InformationCircleIcon } from '@heroicons/react/solid';
 
 const Team = () => {
 
     const navigate = useNavigate();
-    const [name, setName] = useState('');
+    const [, setName] = useState('');
     const [token, setToken] = useState('');
     const [expire, setExpire] = useState('');
     const [users, setUsers] = useState([]);
@@ -60,7 +61,7 @@ const Team = () => {
     return(
         <>
         <div className="container mx-auto bg-gray-50 p-8 antialiased">
-            <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-10">USERS</h1>
+            <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-10">Team</h1>
         </div>
 
         <div className='container mx-auto bg-gray-50 p-8 antialiased'>
@@ -69,25 +70,28 @@ const Team = () => {
                     <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
                         <div className="overflow-hidden">
                             <table className="min-w-full">
-                                <thead className="bg-white border-b">
+                                <thead className="bg-blue-100 border-b">
                                     <tr>
                                         <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                                             #
                                         </th>
                                         <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                            Username
+                                        <UserCircleIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>User</p>
                                         </th>
                                         <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                            Nama
+                                        <MailIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Email</p>
                                         </th>
                                         <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                            Email
+                                        <PhoneIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Telp</p>
                                         </th>
                                         <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                            Job Desk
+                                        <ShieldCheckIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Job Desk</p>
                                         </th>
                                         <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                                            Aktif Sejak
+                                        <ArrowCircleDownIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Aktif Sejak</p>
+                                        </th>
+                                        <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                                        <InformationCircleIcon className='h-7 w-7 fill-blue-500 -mb-6'/><p className='ml-7 text-slate-500'>Status</p>
                                         </th>
                                     </tr>
                                 </thead>
@@ -95,11 +99,12 @@ const Team = () => {
                                     { users.map((user, index) => (
                                         <tr className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100" key={user.id}>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
-                                            <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">{user.username}</td>
-                                            <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">{user.name}</td>
+                                            <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"><b>{user.username}</b><br/>{user.name}</td>
                                             <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">{user.email}</td>
+                                            <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">{user.telp}</td>
                                             <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">{user.jobdesk}</td>
                                             <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">{user.aktif_sejak}</td>
+                                            <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">{user.status}</td>
                                         </tr>
                                     )) }
                                 </tbody>

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, Fragment } from "react";
-import { CheckCircleIcon, ExclamationIcon } from '@heroicons/react/solid';
+import { CheckCircleIcon, ExclamationIcon, PlusCircleIcon } from '@heroicons/react/solid';
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { Dialog, Transition } from '@headlessui/react'
@@ -108,6 +108,11 @@ const AddWorkOrder = () => {
 
     return(
         <>
+
+        <div className="container mx-auto bg-gray-50 p-8 antialiased">
+            <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-10">Work Order</h1>
+        </div>
+
         <div className="container mx-auto bg-gray-50 p-8 antialiased">
             <button
                 type="button"
@@ -119,7 +124,7 @@ const AddWorkOrder = () => {
                 focus:outline-none focus:ring-0 active:bg-blue-600 
                 active:shadow-lg transition duration-150 ease-in-out
                 btn-lg float-right bottom">
-                + Add Work Order
+                <PlusCircleIcon className='h-7 w-7'/><p className='ml-7 -mt-5'>Add Work Order</p>
             </button>
         </div>
 
