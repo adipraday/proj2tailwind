@@ -16,6 +16,7 @@ const Team = () => {
     useEffect(() => {
         refreshToken();
         getUsers();
+        // eslint-disable-next-line
     }, []);
 
     const refreshToken = async() => {
@@ -60,8 +61,8 @@ const Team = () => {
 
     return(
         <>
-        <div className="container mx-auto bg-gray-50 p-8 antialiased">
-            <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-10">Team</h1>
+        <div className="container mx-auto bg-cyan-700 p-8 antialiased">
+            <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-1">Team</h1>
         </div>
 
         <div className='container mx-auto bg-gray-50 p-8 antialiased'>

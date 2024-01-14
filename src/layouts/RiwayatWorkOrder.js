@@ -1,28 +1,23 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import jwt_decode from "jwt-decode";
+import { useState, useEffect } from "react";
 import {
-  CheckCircleIcon,
-  ExclamationIcon,
   UserCircleIcon,
-  CalendarIcon,
+  MapIcon,
   DocumentAddIcon,
   InformationCircleIcon,
 } from "@heroicons/react/solid";
 
-const Absensi = () => {
+const RiwayatWorkOrder = () => {
+  const navigate = useNavigate();
+  const axiosJWT = axios.create();
+
+  const [, setUserId] = useState("");
   const [, setName] = useState("");
   const [token, setToken] = useState("");
   const [expire, setExpire] = useState("");
-
-  const [msg, setMsg] = useState("");
-  const [error] = useState("");
-
-  const [absensis, setAbsensis] = useState([]);
-
-  const navigate = useNavigate();
-  const axiosJWT = axios.create();
+  const [workorders, setWorkOrders] = useState("");
 
   useEffect(() => {
     refreshToken();
@@ -51,6 +46,7 @@ const Absensi = () => {
         config.headers.Authorization = `bearer ${response.data.accessToken}`;
         setToken(response.accessToken);
         const decoded = jwt_decode(response.data.accessToken);
+        setUserId(decoded.userId);
         setName(decoded.name);
         setExpire(decoded.exp);
       }
@@ -62,76 +58,50 @@ const Absensi = () => {
   );
 
   useEffect(() => {
-    getAbsensis();
+    geRiwayattWorkOrders();
     // eslint-disable-next-line
   }, []);
 
-  const getAbsensis = async () => {
-    const resAbsensis = await axiosJWT.get("http://localhost:5000/absensi", {
-      headers: {
-        Authorization: `bearer ${token}`,
-      },
-    });
-    setAbsensis(resAbsensis.data);
+  const geRiwayattWorkOrders = async () => {
+    const resWorkOrders = await axiosJWT.get(
+      "http://localhost:5000/riwayatworkorder",
+      {
+        headers: {
+          Authorization: `bearer ${token}`,
+        },
+      }
+    );
+    setWorkOrders(resWorkOrders.data);
   };
 
-  const hapusDataAbsensi = async (id) => {
-    try {
-      await axios
-        .delete(`http://localhost:5000/deleteabsensi/${id}`)
-        .then((response) => {
-          // getAbsensis()
-          setMsg(response.data.msg);
-          setTimeout(() => {
-            setMsg("");
-          }, 15000);
-          window.location.reload(false);
-        });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const GtAddAbsensi = () => {
-    navigate("/addabsensi");
+  const BtWorkOrder = () => {
+    navigate("/workorder");
   };
 
   return (
     <>
       <div className="container mx-auto bg-cyan-700 p-8 antialiased">
         <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-1">
-          Absensi
+          Riwayat Pengerjaan / WorkOrders
         </h1>
       </div>
 
-      <div className="container mx-auto bg-gray-50 p-8 antialiased">
+      <div className="mt-2 ml-2">
         <button
-          onClick={() => GtAddAbsensi()}
-          className="inline-block px-6 py-2.5 bg-blue-600 
-                                                text-white font-medium text-xs leading-tight 
-                                                uppercase rounded-full shadow-md hover:bg-blue-700 
-                                                hover:shadow-lg focus:bg-blue-700 focus:shadow-lg 
-                                                focus:outline-none focus:ring-0 active:bg-blue-800 
-                                                active:shadow-lg transition duration-150 ease-in-out"
+          onClick={BtWorkOrder}
+          className="py-2 px-4 border border-transparent text-sm font-medium 
+          rounded-md text-white bg-green-600 hover:bg-green-700 
+          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
-          + Add Absensi
+          {"<<"} Kembali
         </button>
+      </div>
+
+      <div className="container mx-auto bg-gray-50 p-8 antialiased">
         <div className="flex flex-col">
           <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
               <div className="overflow-hidden">
-                {msg && (
-                  <div className="text-center rounded-lg border-4 border-rose-100 border-l-rose-300">
-                    <CheckCircleIcon className="h-6 w-6 fill-rose-500 -mb-5" />
-                    <p className="m-3 text-slate-500">{msg}</p>
-                  </div>
-                )}
-                {error && (
-                  <div className="text-center rounded-lg border-4 border-rose-100 border-l-rose-300">
-                    <ExclamationIcon className="h-6 w-6 fill-red-500 -mb-5" />
-                    <p className="m-3 text-slate-500">{error}</p>
-                  </div>
-                )}
                 <table className="min-w-full">
                   <thead className="bg-blue-100 border-b">
                     <tr>
@@ -139,35 +109,35 @@ const Absensi = () => {
                         scope="col"
                         className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
                       >
-                        #
+                        <p className="ml-7 text-slate-500">#</p>
                       </th>
                       <th
                         scope="col"
                         className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
                       >
                         <UserCircleIcon className="h-7 w-7 fill-blue-500 -mb-6" />
-                        <p className="ml-7 text-slate-500">Nama Karyawan</p>
+                        <p className="ml-7 text-slate-500">Cust Info</p>
                       </th>
                       <th
                         scope="col"
                         className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
                       >
-                        <CalendarIcon className="h-7 w-7 fill-blue-500 -mb-6" />
-                        <p className="ml-7 text-slate-500">Tanggal</p>
-                      </th>
-                      <th
-                        scope="col"
-                        className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
-                      >
-                        <InformationCircleIcon className="h-7 w-7 fill-blue-500 -mb-6" />
-                        <p className="ml-7 text-slate-500">status</p>
+                        <MapIcon className="h-7 w-7 fill-blue-500 -mb-6" />
+                        <p className="ml-7 text-slate-500">Location</p>
                       </th>
                       <th
                         scope="col"
                         className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
                       >
                         <DocumentAddIcon className="h-7 w-7 fill-blue-500 -mb-6" />
-                        <p className="ml-7 text-slate-500">Note</p>
+                        <p className="ml-7 text-slate-500">Description</p>
+                      </th>
+                      <th
+                        scope="col"
+                        className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                      >
+                        <InformationCircleIcon className="h-7 w-7 fill-blue-500 -mb-6" />
+                        <p className="ml-7 text-slate-500">Status</p>
                       </th>
                       <th
                         scope="col"
@@ -178,37 +148,50 @@ const Absensi = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {absensis.map((absensi, index) => (
+                    {Object.values(workorders).map((workorder, index) => (
                       <tr
                         className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100"
-                        key={absensi.id}
+                        key={workorder.id}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {index + 1}.
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          {absensi.nama}
+                          <b>
+                            {workorder.nama_client} / {workorder.id_pelanggan}
+                          </b>
+                          <br />
+                          {workorder.email} / {workorder.contact_person}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          {absensi.tgl_absensi}
+                          <b>{workorder.alamat}</b>
+                          <br />
+                          {workorder.tikor}
+                          <br />
+                          {workorder.link_tikor}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          {absensi.keterangan}
+                          <b>{workorder.paket_berlangganan}</b>
+                          <br />
+                          {workorder.label_fat}
+                          <br />
+                          {workorder.note}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          {absensi.note}
+                          <b>{workorder.status}</b>
+                          <br />
+                          {workorder.updatedAt}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                           <button
-                            onClick={() => hapusDataAbsensi(absensi.id)}
-                            className="inline-block px-6 py-2.5 bg-red-600 
+                            className="inline-block px-6 py-2.5 bg-blue-500 
                                                 text-white font-medium text-xs leading-tight 
-                                                uppercase rounded-full shadow-md hover:bg-red-700 
-                                                hover:shadow-lg focus:bg-red-700 focus:shadow-lg 
-                                                focus:outline-none focus:ring-0 active:bg-green-800 
+                                                uppercase rounded-full shadow-md hover:bg-blue-600 
+                                                hover:shadow-lg focus:bg-blue-600 focus:shadow-lg 
+                                                focus:outline-none focus:ring-0 active:bg-yellow-800 
                                                 active:shadow-lg transition duration-150 ease-in-out"
                           >
-                            Delete
+                            Detail
                           </button>
                         </td>
                       </tr>
@@ -224,4 +207,4 @@ const Absensi = () => {
   );
 };
 
-export default Absensi;
+export default RiwayatWorkOrder;

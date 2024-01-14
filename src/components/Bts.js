@@ -1,9 +1,19 @@
+import React from "react";
+
 const Bts = () => {
-    return(
-        <div className="container mx-auto bg-gray-50 p-8 antialiased">
-            <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-10">BTS</h1>
-        </div>
-    )
-}
+  return (
+    <>
+      <div className="container mx-auto bg-cyan-700 p-8 antialiased">
+        <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-1">
+          BTS
+        </h1>
+      </div>
+
+      <div className="container mx-auto bg-gray-50 p-8 antialiased">
+        <h2>This Page Available Soon...</h2>
+      </div>
+    </>
+  );
+};
 
 export default Bts;
