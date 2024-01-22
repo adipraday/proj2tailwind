@@ -1,39 +1,11 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect, Fragment } from "react";
 import { ViewListIcon, XCircleIcon } from "@heroicons/react/solid";
-import axios from "axios";
-import jwt_decode from "jwt-decode";
 import { Dialog, Transition } from "@headlessui/react";
 import { getAvailableFat } from "../services/FatServices";
 
 const ModalListFat = () => {
-  const navigate = useNavigate();
-
-  const [, setName] = useState("");
-  const [, setToken] = useState("");
-  const [, setExpire] = useState("");
-
   const [availablefats, setAvailableFats] = useState([]);
-
-  useEffect(() => {
-    refreshToken();
-    // eslint-disable-next-line
-  }, []);
-
-  const refreshToken = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/token");
-      setToken(response.data.accessToken);
-      const decoded = jwt_decode(response.data.accessToken);
-      setName(decoded.name);
-      setExpire(decoded.exp);
-    } catch (error) {
-      if (error.response) {
-        navigate("/");
-      }
-    }
-  };
 
   useEffect(() => {
     let mounted = true;

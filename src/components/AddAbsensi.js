@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import { CheckCircleIcon, ExclamationIcon } from "@heroicons/react/solid";
+import ApiUrl from "../config/ApiUrl";
 
 const AddAbsensi = () => {
   const navigate = useNavigate();
@@ -24,13 +25,16 @@ const AddAbsensi = () => {
 
   useEffect(() => {
     refreshToken();
-    getUsers();
     // eslint-disable-next-line
   }, []);
 
   const refreshToken = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/token");
+      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      });
       setToken(response.data.accessToken);
       const decoded = jwt_decode(response.data.accessToken);
       setName(decoded.name);
@@ -46,8 +50,11 @@ const AddAbsensi = () => {
     async (config) => {
       const currentDate = new Date();
       if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get("http://localhost:5000/token");
-        config.headers.Authorization = `bearer ${response.data.accessToken}`;
+        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        });
         setToken(response.accessToken);
         const decoded = jwt_decode(response.data.accessToken);
         setName(decoded.name);
@@ -60,8 +67,13 @@ const AddAbsensi = () => {
     }
   );
 
+  useEffect(() => {
+    getUsers();
+    // eslint-disable-next-line
+  }, []);
+
   const getUsers = async () => {
-    const response = await axiosJWT.get("http://localhost:5000/users", {
+    const response = await axiosJWT.get(`${ApiUrl.API_BASE_URL}/users`, {
       headers: {
         Authorization: `bearer ${token}`,
       },
@@ -73,7 +85,7 @@ const AddAbsensi = () => {
     e.preventDefault();
     try {
       await axios
-        .post("http://localhost:5000/addabsensi", {
+        .post(`${ApiUrl.API_BASE_URL}/addabsensi`, {
           id_user: id_user,
           tgl_absensi: tgl_absensi,
           keterangan: keterangan,

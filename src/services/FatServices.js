@@ -1,11 +1,10 @@
 // services.js
 import axios from "axios";
-
-const API_BASE_URL = "http://localhost:5000";
+import ApiUrl from "../config/ApiUrl";
 
 export const getFats = () => {
   return axios
-    .get(`${API_BASE_URL}/getfat`)
+    .get(`${ApiUrl.API_BASE_URL}/getfat`)
     .then((response) => response.data)
     .catch((error) => {
       console.error("Error fetching list:", error);
@@ -15,7 +14,7 @@ export const getFats = () => {
 
 export const getAvailableFat = () => {
   return axios
-    .get(`${API_BASE_URL}/getavailablefat`)
+    .get(`${ApiUrl.API_BASE_URL}/getavailablefat`)
     .then((response) => response.data)
     .catch((error) => {
       console.error("Error fetching list:", error);
@@ -25,7 +24,7 @@ export const getAvailableFat = () => {
 
 export const getFatById = (itemId) => {
   return axios
-    .get(`${API_BASE_URL}/getfat/${itemId}`)
+    .get(`${ApiUrl.API_BASE_URL}/getfat/${itemId}`)
     .then((response) => response.data)
     .catch((error) => {
       console.error(`Error fetching item with ID ${itemId}:`, error);
@@ -35,7 +34,7 @@ export const getFatById = (itemId) => {
 
 export const addFat = (itemData) => {
   return axios
-    .post(`${API_BASE_URL}/addfat`, { ...itemData })
+    .post(`${ApiUrl.API_BASE_URL}/addfat`, { ...itemData })
     .then((response) => response.data)
     .catch((error) => {
       console.error("Error adding item:", error);
@@ -45,7 +44,7 @@ export const addFat = (itemData) => {
 
 export const updateDataFat = (itemId, fatData) => {
   return axios
-    .patch(`${API_BASE_URL}/updatefat/${itemId}`, { ...fatData })
+    .patch(`${ApiUrl.API_BASE_URL}/updatefat/${itemId}`, { ...fatData })
     .then((response) => response.data)
     .catch((error) => {
       console.error("Error updating item:", error);
@@ -55,7 +54,7 @@ export const updateDataFat = (itemId, fatData) => {
 
 export const deleteFat = (itemId) => {
   return axios
-    .delete(`${API_BASE_URL}/deletefat/${itemId}`)
+    .delete(`${ApiUrl.API_BASE_URL}/deletefat/${itemId}`)
     .then((response) => response.data)
     .catch((error) => {
       console.error("Error deleting item:", error);

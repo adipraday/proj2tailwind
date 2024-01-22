@@ -5,14 +5,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import { getFatById, updateDataFat } from "../services/FatServices";
 import { ExclamationIcon } from "@heroicons/react/solid";
+import ApiUrl from "../config/ApiUrl";
 
 const UpdateFat = () => {
   const navigate = useNavigate();
+  const axiosJWT = axios.create();
   const { id } = useParams("");
 
-  const setName = useState("");
-  const setToken = useState("");
-  const setExpire = useState("");
+  const [, setName] = useState("");
+  const [, setUserId] = useState("");
+  const [, setToken] = useState("");
+  const [expire, setExpire] = useState("");
 
   const [fats, setFats] = useState("");
 
@@ -33,7 +36,11 @@ const UpdateFat = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/token");
+      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      });
       setToken(response.data.accessToken);
       const decoded = jwt_decode(response.data.accessToken);
       setName(decoded.name);
@@ -44,6 +51,28 @@ const UpdateFat = () => {
       }
     }
   };
+
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      const currentDate = new Date();
+      if (expire * 1000 < currentDate.getTime()) {
+        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        });
+        setToken(response.accessToken);
+        const decoded = jwt_decode(response.data.accessToken);
+        setUserId(decoded.userId);
+        setName(decoded.name);
+        setExpire(decoded.exp);
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
 
   useEffect(() => {
     // Fetch the item details by ID when the component mounts

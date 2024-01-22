@@ -1,10 +1,9 @@
 import axios from "axios";
-
-const API_BASE_URL = "http://localhost:5000";
+import ApiUrl from "../config/ApiUrl";
 
 export const addWorkOrder = (itemData) => {
   return axios
-    .post(`${API_BASE_URL}/addworkorder`, { ...itemData })
+    .post(`${ApiUrl.API_BASE_URL}/addworkorder`, { ...itemData })
     .then((response) => response.data)
     .catch((error) => {
       console.error("Error adding item:", error);

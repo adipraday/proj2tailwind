@@ -1,14 +1,10 @@
-const [phonenumber, setPhoneNumber] = useState("");
-const [text, setText] = useState("");
-
-const sendMessage = async (e) => {
-  e.preventDefault();
+export const sendWa = async (data) => {
   const apiUrl =
     "https://api.360messenger.net/sendMessage/FlHHLUSjjcAWgramCMz9Mkvb4UHljWqf1sg";
 
   const formData = new FormData();
-  formData.append("phonenumber", phonenumber);
-  formData.append("text", text);
+  formData.append("phonenumber", data.phonenumber);
+  formData.append("text", data.text);
 
   try {
     const response = await fetch(apiUrl, {
@@ -20,9 +16,11 @@ const sendMessage = async (e) => {
       throw new Error(`Bad Request: ${response.statusText}`);
     }
 
-    const data = await response.json();
-    console.log("Response:", data);
+    const responseData = await response.json();
+    // Do something with the responseData if needed
+    console.log(responseData);
   } catch (error) {
-    console.error("Error:", error.message);
+    // Handle errors
+    console.error(error);
   }
 };

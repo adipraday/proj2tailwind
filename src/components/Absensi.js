@@ -10,9 +10,10 @@ import {
   DocumentAddIcon,
   InformationCircleIcon,
 } from "@heroicons/react/solid";
+import ApiUrl from "../config/ApiUrl";
 
 const Absensi = () => {
-  const [, setName] = useState("");
+  const [name, setName] = useState("");
   const [token, setToken] = useState("");
   const [expire, setExpire] = useState("");
 
@@ -31,7 +32,11 @@ const Absensi = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/token");
+      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      });
       setToken(response.data.accessToken);
       const decoded = jwt_decode(response.data.accessToken);
       setName(decoded.name);
@@ -47,8 +52,11 @@ const Absensi = () => {
     async (config) => {
       const currentDate = new Date();
       if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get("http://localhost:5000/token");
-        config.headers.Authorization = `bearer ${response.data.accessToken}`;
+        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        });
         setToken(response.accessToken);
         const decoded = jwt_decode(response.data.accessToken);
         setName(decoded.name);
@@ -67,7 +75,7 @@ const Absensi = () => {
   }, []);
 
   const getAbsensis = async () => {
-    const resAbsensis = await axiosJWT.get("http://localhost:5000/absensi", {
+    const resAbsensis = await axiosJWT.get(`${ApiUrl.API_BASE_URL}/absensi`, {
       headers: {
         Authorization: `bearer ${token}`,
       },
@@ -78,7 +86,7 @@ const Absensi = () => {
   const hapusDataAbsensi = async (id) => {
     try {
       await axios
-        .delete(`http://localhost:5000/deleteabsensi/${id}`)
+        .delete(`${ApiUrl.API_BASE_URL}/deleteabsensi/${id}`)
         .then((response) => {
           // getAbsensis()
           setMsg(response.data.msg);
@@ -102,6 +110,9 @@ const Absensi = () => {
         <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-1">
           Absensi
         </h1>
+        <p className="text-sm font-semibold text-right text-gray-800 dark:text-white mb-1">
+          {name}
+        </p>
       </div>
 
       <div className="container mx-auto bg-gray-50 p-8 antialiased">

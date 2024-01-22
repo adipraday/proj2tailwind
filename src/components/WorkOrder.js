@@ -8,15 +8,17 @@ import {
   DocumentAddIcon,
   InformationCircleIcon,
 } from "@heroicons/react/solid";
+import ApiUrl from "../config/ApiUrl";
 
 const WorkOrder = () => {
   const navigate = useNavigate();
   const axiosJWT = axios.create();
 
-  const [userId, setUserId] = useState("");
-  const [, setName] = useState("");
-  const [token, setToken] = useState("");
+  const [name, setName] = useState("");
+  const [, setToken] = useState("");
   const [expire, setExpire] = useState("");
+
+  const [userId, setUserId] = useState("");
   const [workorders, setWorkOrders] = useState("");
 
   useEffect(() => {
@@ -26,7 +28,11 @@ const WorkOrder = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/token");
+      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      });
       setToken(response.data.accessToken);
       const decoded = jwt_decode(response.data.accessToken);
       setName(decoded.name);
@@ -42,8 +48,11 @@ const WorkOrder = () => {
     async (config) => {
       const currentDate = new Date();
       if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get("http://localhost:5000/token");
-        config.headers.Authorization = `bearer ${response.data.accessToken}`;
+        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        });
         setToken(response.accessToken);
         const decoded = jwt_decode(response.data.accessToken);
         setUserId(decoded.userId);
@@ -64,12 +73,7 @@ const WorkOrder = () => {
 
   const getWorkOrder = async () => {
     const resWorkOrders = await axiosJWT.get(
-      "http://localhost:5000/workorders",
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-        },
-      }
+      `${ApiUrl.API_BASE_URL}/workorders`
     );
     setWorkOrders(resWorkOrders.data);
   };
@@ -78,7 +82,7 @@ const WorkOrder = () => {
     const user_id = userId;
     try {
       await axios
-        .put(`http://localhost:5000/deleteworkorder/${id}/${user_id}`)
+        .put(`${ApiUrl.API_BASE_URL}/deleteworkorder/${id}/${user_id}`)
         .then(() => {
           window.location.reload(false);
           return alert("Data telah dihapus");
@@ -106,6 +110,9 @@ const WorkOrder = () => {
         <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white">
           Work Orders
         </h1>
+        <p className="text-sm font-semibold text-right text-gray-800 dark:text-white mb-1">
+          {name}
+        </p>
       </div>
 
       <div className="container flex justify-end mx-auto bg-gray-50 p-8 antialiased">

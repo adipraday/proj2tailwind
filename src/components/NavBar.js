@@ -4,6 +4,7 @@ import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import { UserIcon, ArrowCircleRightIcon } from "@heroicons/react/solid";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import ApiUrl from "../config/ApiUrl";
 
 const navigation = [
   { name: "Dashboard", href: "/home", current: false },
@@ -24,7 +25,7 @@ const NavBar = () => {
 
   const Logout = async () => {
     try {
-      await axios.delete("http://localhost:5000/logout");
+      await axios.delete(`${ApiUrl.API_BASE_URL}/logout`);
       navigate("/");
     } catch (error) {
       console.log(error);

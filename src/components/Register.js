@@ -4,9 +4,12 @@ import {
   LockClosedIcon,
 } from "@heroicons/react/solid";
 import { useState } from "react";
-import axios from "axios";
+import { userRegister } from "../services/AuthService";
 
 const Register = () => {
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [jobdesk, setJobdesk] = useState("");
@@ -16,59 +19,50 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confPassword, setConfPassword] = useState("");
-  const [msg, setMsg] = useState("");
-  const [error, setError] = useState("");
 
   const Register = async (e) => {
     e.preventDefault();
-    try {
-      await axios
-        .post("http://localhost:5000/users", {
-          username: username,
-          name: name,
-          jobdesk: jobdesk,
-          aktifSejak: aktifSejak,
-          whatsapp: whatsapp,
-          telp: telp,
-          email: email,
-          password: password,
-          confPassword: confPassword,
-        })
-        .then((response) => {
-          setUsername("");
-          setName("");
-          setJobdesk("");
-          setAktifSejak("");
-          setWhatsapp("");
-          setTelp("");
-          setEmail("");
-          setPassword("");
-          setConfPassword("");
-          setMsg(response.data.msg);
-          setTimeout(() => {
-            setMsg("");
-          }, 15000);
-        });
-    } catch (error) {
-      if (error.response) {
+    if (password !== confPassword) {
+      setError("Password and confirmPassword do not match");
+      return;
+    }
+    userRegister({
+      username,
+      name,
+      jobdesk,
+      aktifSejak,
+      whatsapp,
+      telp,
+      email,
+      password,
+      confPassword,
+    })
+      .then((response) => {
+        console.log(response);
+        setUsername("");
+        setName("");
+        setJobdesk("");
+        setAktifSejak("");
+        setWhatsapp("");
+        setTelp("");
+        setEmail("");
+        setPassword("");
+        setConfPassword("");
+        setMsg(response.msg);
+        setTimeout(() => {
+          setMsg("");
+        }, 15000);
+      })
+      .catch((error) => {
         setError(error.response.data.msg);
         setTimeout(() => {
           setError("");
         }, 3000);
-      }
-    }
+      });
   };
 
   return (
     <>
-      {/*
-            This example requires updating your template:
-
-            ```
-            <html class="h-full bg-gray-50">
-            <body class="h-full">
-            ```
-        */}
       <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
@@ -81,7 +75,11 @@ const Register = () => {
               Register your account
             </h2>
           </div>
-          <form className="mt-8 space-y-6" onSubmit={Register}>
+          <form
+            id="form_register"
+            className="mt-8 space-y-6"
+            onSubmit={Register}
+          >
             {msg && (
               <div className="text-center rounded-lg border-4 border-sky-100 border-l-sky-300">
                 <CheckCircleIcon className="h-6 w-6 fill-blue-500 -mb-5" />
@@ -99,9 +97,12 @@ const Register = () => {
             )}
             <div className="rounded-md shadow-sm -space-y-px">
               <div>
-                <label className="sr-only">Username</label>
+                <label htmlFor="fr_username" className="text-slate-800">
+                  Username
+                </label>
                 <input
                   type="text"
+                  id="fr_username"
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Username"
                   value={username}
@@ -109,10 +110,14 @@ const Register = () => {
                   required
                 />
               </div>
+              <br />
               <div>
-                <label className="sr-only">Nama Lengkap</label>
+                <label htmlFor="fr_nlengkap" className="text-slate-800">
+                  Nama Lengkap
+                </label>
                 <input
                   type="text"
+                  id="fr_nlengkap"
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Nama Lengkap"
                   value={name}
@@ -120,10 +125,14 @@ const Register = () => {
                   required
                 />
               </div>
+              <br />
               <div>
-                <label className="sr-only">Job Desk</label>
+                <label htmlFor="fr_jdesk" className="text-slate-800">
+                  Job Desk
+                </label>
                 <select
-                  class="form-select appearance-none
+                  id="fr_jdesk"
+                  className="form-select appearance-none
                         block
                         w-full
                         px-3
@@ -151,10 +160,14 @@ const Register = () => {
                   </option>
                 </select>
               </div>
+              <br />
               <div>
-                <label className="sr-only">Aktif Sejak</label>
+                <label htmlFor="fr_asejak" className="text-slate-800">
+                  Aktif Sejak
+                </label>
                 <input
                   type="date"
+                  id="fr_asejak"
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Aktif Sejak"
                   value={aktifSejak}
@@ -162,10 +175,14 @@ const Register = () => {
                   required
                 />
               </div>
+              <br />
               <div>
-                <label className="sr-only">WhatsApp Contact</label>
+                <label htmlFor="fr_wa" className="text-slate-800">
+                  WhatsApp Contact
+                </label>
                 <input
                   type="text"
+                  id="fr_wa"
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="WhatsApp Contact"
                   value={whatsapp}
@@ -173,10 +190,14 @@ const Register = () => {
                   required
                 />
               </div>
+              <br />
               <div>
-                <label className="sr-only">Nomor Telp</label>
+                <label htmlFor="fr_telp" className="text-slate-800">
+                  Nomor Telp
+                </label>
                 <input
                   type="text"
+                  id="fr_telp"
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Nomor Telp"
                   value={telp}
@@ -184,12 +205,14 @@ const Register = () => {
                   required
                 />
               </div>
+              <br />
               <div>
-                <label htmlFor="email-address" className="sr-only">
+                <label htmlFor="fr_email" className="text-slate-800">
                   Email address
                 </label>
                 <input
                   type="email"
+                  id="fr_email"
                   autoComplete="email"
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Email address"
@@ -198,12 +221,14 @@ const Register = () => {
                   required
                 />
               </div>
+              <br />
               <div>
-                <label htmlFor="password" className="sr-only">
+                <label htmlFor="fr_password" className="text-slate-800">
                   Password
                 </label>
                 <input
                   type="password"
+                  id="fr_password"
                   autoComplete="current-password"
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Password"
@@ -212,12 +237,14 @@ const Register = () => {
                   required
                 />
               </div>
+              <br />
               <div>
-                <label htmlFor="password" className="sr-only">
+                <label htmlFor="fr_cpassword" className="text-slate-800">
                   Confirm Password
                 </label>
                 <input
                   type="password"
+                  id="fr_cpassword"
                   autoComplete="current-password"
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Confirm Password"
@@ -226,6 +253,7 @@ const Register = () => {
                   required
                 />
               </div>
+              <br />
             </div>
 
             <div>

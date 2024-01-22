@@ -9,13 +9,14 @@ import {
   RssIcon,
   InformationCircleIcon,
 } from "@heroicons/react/solid";
+import ApiUrl from "../config/ApiUrl";
 
 const Home = () => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [name, setName] = useState("");
-  const [, setUserId] = useState("");
-  const [token, setToken] = useState("");
+  const [, setToken] = useState("");
   const [expire, setExpire] = useState("");
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [availabletechnician, setAvailableTechnician] = useState("");
   const [logactivity, setLogActivity] = useState("");
 
@@ -31,7 +32,11 @@ const Home = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/token");
+      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      });
       setToken(response.data.accessToken);
       const decoded = jwt_decode(response.data.accessToken);
       setName(decoded.name);
@@ -47,11 +52,13 @@ const Home = () => {
     async (config) => {
       const currentDate = new Date();
       if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get("http://localhost:5000/token");
-        config.headers.Authorization = `bearer ${response.data.accessToken}`;
+        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        });
         setToken(response.accessToken);
         const decoded = jwt_decode(response.data.accessToken);
-        setUserId(decoded.userId);
         setName(decoded.name);
         setExpire(decoded.exp);
       }
@@ -67,11 +74,7 @@ const Home = () => {
     // eslint-disable-next-line
   }, []);
   const getAbsensis = async () => {
-    const resAbsensis = await axiosJWT.get("http://localhost:5000/absensi", {
-      headers: {
-        Authorization: `bearer ${token}`,
-      },
-    });
+    const resAbsensis = await axiosJWT.get(`${ApiUrl.API_BASE_URL}/absensi`);
     setAbsensis(resAbsensis.data);
   };
 
@@ -81,7 +84,7 @@ const Home = () => {
   }, []);
   const getAvailableTechnician = async () => {
     const resAvailableTechnician = await axiosJWT.get(
-      `http://localhost:5000/getavailabletechnician`
+      `${ApiUrl.API_BASE_URL}/getavailabletechnician`
     );
     setAvailableTechnician(resAvailableTechnician.data);
   };
@@ -92,7 +95,7 @@ const Home = () => {
   }, []);
   const getLogActivity = async () => {
     const resLogActivity = await axiosJWT.get(
-      `http://localhost:5000/getdashboardact`
+      `${ApiUrl.API_BASE_URL}/getdashboardact`
     );
     setLogActivity(resLogActivity.data);
   };

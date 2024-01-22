@@ -8,6 +8,7 @@ import {
   DocumentAddIcon,
   InformationCircleIcon,
 } from "@heroicons/react/solid";
+import ApiUrl from "../config/ApiUrl";
 
 const RiwayatWorkOrder = () => {
   const navigate = useNavigate();
@@ -26,7 +27,11 @@ const RiwayatWorkOrder = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/token");
+      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      });
       setToken(response.data.accessToken);
       const decoded = jwt_decode(response.data.accessToken);
       setName(decoded.name);
@@ -42,8 +47,11 @@ const RiwayatWorkOrder = () => {
     async (config) => {
       const currentDate = new Date();
       if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get("http://localhost:5000/token");
-        config.headers.Authorization = `bearer ${response.data.accessToken}`;
+        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        });
         setToken(response.accessToken);
         const decoded = jwt_decode(response.data.accessToken);
         setUserId(decoded.userId);
@@ -64,7 +72,7 @@ const RiwayatWorkOrder = () => {
 
   const geRiwayattWorkOrders = async () => {
     const resWorkOrders = await axiosJWT.get(
-      "http://localhost:5000/riwayatworkorder",
+      `${ApiUrl.API_BASE_URL}/riwayatworkorder`,
       {
         headers: {
           Authorization: `bearer ${token}`,

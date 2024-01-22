@@ -4,14 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { CheckCircleIcon, ExclamationIcon } from "@heroicons/react/solid";
 import { useNavigate } from "react-router-dom";
+import ApiUrl from "../config/ApiUrl";
 
 const TerbitkanWO = () => {
   const axiosJWT = axios.create();
   const navigate = useNavigate();
 
   const { id } = useParams();
-
-  const API_BASE_URL = "http://localhost:5000";
 
   const [, setName] = useState("");
   const [userId, setUserId] = useState("");
@@ -55,7 +54,11 @@ const TerbitkanWO = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/token`);
+      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      });
       setToken(response.data.accessToken);
       const decoded = jwt_decode(response.data.accessToken);
       setName(decoded.name);
@@ -71,8 +74,11 @@ const TerbitkanWO = () => {
     async (config) => {
       const currentDate = new Date();
       if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get(`${API_BASE_URL}/token`);
-        config.headers.Authorization = `bearer ${response.data.accessToken}`;
+        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        });
         setToken(response.accessToken);
         const decoded = jwt_decode(response.data.accessToken);
         setUserId(decoded.userId);
@@ -94,7 +100,7 @@ const TerbitkanWO = () => {
   const getAvailableTechnician = async () => {
     try {
       const resAvailableTechnician = await axiosJWT.get(
-        `${API_BASE_URL}/getavailabletechnician`
+        `${ApiUrl.API_BASE_URL}/getavailabletechnician`
       );
       setAvailableTechnician(resAvailableTechnician.data);
     } catch (error) {
@@ -105,7 +111,7 @@ const TerbitkanWO = () => {
   const addTechnician = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/addteknisiwo", {
+      const response = await axios.post(`${ApiUrl.API_BASE_URL}/addteknisiwo`, {
         userId: userId,
         teknisiId: id_teknisi,
         id: id,
@@ -150,7 +156,7 @@ const TerbitkanWO = () => {
   }, [id]); // Add NoWo as a dependency to the useEffect dependency array
   const getTeknisiWo = async () => {
     const resTeknisiWO = await axiosJWT.get(
-      `http://localhost:5000/getteknisiwo/${id}`
+      `${ApiUrl.API_BASE_URL}/getteknisiwo/${id}`
     );
     setTeknisiWO(resTeknisiWO.data);
   };
@@ -159,7 +165,7 @@ const TerbitkanWO = () => {
     try {
       await axios
         .delete(
-          `http://localhost:5000/deleteteknisiwo/${another_act_id}/${act_id}`
+          `${ApiUrl.API_BASE_URL}/deleteteknisiwo/${another_act_id}/${act_id}`
         )
         .then((response) => {
           setMsg(response.data.msg);
@@ -179,7 +185,7 @@ const TerbitkanWO = () => {
     const getWorkOrder = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/workorder/${id}`
+          `${ApiUrl.API_BASE_URL}/workorder/${id}`
         );
         setWorkOrders(response.data);
       } catch (error) {
@@ -196,7 +202,7 @@ const TerbitkanWO = () => {
     try {
       // Make the API request to update the item
       const response = await axios.put(
-        `http://localhost:5000/updateworkorder`,
+        `${ApiUrl.API_BASE_URL}/updateworkorder`,
         {
           userId: userId,
           id: id,
@@ -225,7 +231,7 @@ const TerbitkanWO = () => {
     try {
       // Make the API request to update the item
       const response = await axios.put(
-        `http://localhost:5000/updateprogresswo`,
+        `${ApiUrl.API_BASE_URL}/updateprogresswo`,
         {
           userId: f3userId.current.value,
           id: f3id.current.value,

@@ -4,14 +4,16 @@ import { useState, useEffect, Fragment } from "react";
 import { CheckCircleIcon, ExclamationIcon } from "@heroicons/react/solid";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
+import ApiUrl from "../config/ApiUrl";
 
 const AddWorkOrder = () => {
   const navigate = useNavigate();
+  const axiosJWT = axios.create();
 
   const [, setName] = useState("");
   const [userId, setUserId] = useState("");
   const [, setToken] = useState("");
-  const [, setExpire] = useState("");
+  const [expire, setExpire] = useState("");
 
   const [no_wo, setNo_wo] = useState("");
   const [nama_client, setNama_client] = useState("");
@@ -35,10 +37,13 @@ const AddWorkOrder = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/token");
+      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      });
       setToken(response.data.accessToken);
       const decoded = jwt_decode(response.data.accessToken);
-      setUserId(decoded.userId);
       setName(decoded.name);
       setExpire(decoded.exp);
     } catch (error) {
@@ -48,11 +53,33 @@ const AddWorkOrder = () => {
     }
   };
 
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      const currentDate = new Date();
+      if (expire * 1000 < currentDate.getTime()) {
+        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        });
+        setToken(response.accessToken);
+        const decoded = jwt_decode(response.data.accessToken);
+        setUserId(decoded.userId);
+        setName(decoded.name);
+        setExpire(decoded.exp);
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
   const saveWorkOrder = async (e) => {
     e.preventDefault();
     try {
       await axios
-        .post("http://localhost:5000/addworkorder", {
+        .post(`${ApiUrl.API_BASE_URL}/addworkorder`, {
           user_id: userId,
           no_wo: no_wo,
           nama_client: nama_client,
