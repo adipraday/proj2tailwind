@@ -18,6 +18,15 @@ import ModalListFat from "./components/ModalListFat";
 import Fat from "./layouts/Fat";
 import AddFat from "./layouts/AddFat";
 import UpdateFat from "./layouts/UpdateFat";
+import Dismantle from "./layouts/Dismantle";
+import AddWoDismantle from "./layouts/AddWoDismantle";
+import UpdateWoDismantle from "./layouts/UpdateWoDismantle";
+import RiwayatDismantle from "./layouts/RiwayatDismantle";
+import Maintenance from "./layouts/Maintenance";
+import RiwayatMaintenance from "./layouts/RiwayatMaintenance";
+import UpdateUserData from "./layouts/UpdateUserData";
+import AddWoMaintenance from "./layouts/AddWoMaintenance";
+import UpdateWoMaintenance from "./layouts/UpdateWoMaintenance";
 
 function App() {
   return (
@@ -83,11 +92,110 @@ function App() {
         ></Route>
         <Route
           exact
+          path="/dismantle"
+          element={
+            <>
+              <NavBar />
+              <Dismantle />
+              <Footer />
+            </>
+          }
+        ></Route>
+        <Route
+          exact
+          path="/addwodismantle"
+          element={
+            <>
+              <NavBar />
+              <AddWoDismantle />
+              <Footer />
+            </>
+          }
+        ></Route>
+        <Route
+          exact
+          path="/updatewodismantle/:id"
+          element={
+            <>
+              <NavBar />
+              <UpdateWoDismantle />
+              <Footer />
+            </>
+          }
+        ></Route>
+        <Route
+          exact
+          path="/riwayatdismantle"
+          element={
+            <>
+              <NavBar />
+              <RiwayatDismantle />
+              <Footer />
+            </>
+          }
+        ></Route>
+        <Route
+          exact
+          path="/maintenance"
+          element={
+            <>
+              <NavBar />
+              <Maintenance />
+              <Footer />
+            </>
+          }
+        ></Route>
+        <Route
+          exact
+          path="/updatewomaintenance/:id"
+          element={
+            <>
+              <NavBar />
+              <UpdateWoMaintenance />
+              <Footer />
+            </>
+          }
+        ></Route>
+        <Route
+          exact
+          path="/riwayatmaintenance"
+          element={
+            <>
+              <NavBar />
+              <RiwayatMaintenance />
+              <Footer />
+            </>
+          }
+        ></Route>
+        <Route
+          exact
+          path="/addwomaintenance"
+          element={
+            <>
+              <NavBar />
+              <AddWoMaintenance />
+              <Footer />
+            </>
+          }
+        ></Route>
+        <Route
+          exact
           path="/team"
           element={
             <>
               <NavBar />
               <Team />
+              <Footer />
+            </>
+          }
+        ></Route>
+        <Route
+          exact
+          path="/updateuserdata/:id"
+          element={
+            <>
+              <NavBar />
+              <UpdateUserData />
               <Footer />
             </>
           }

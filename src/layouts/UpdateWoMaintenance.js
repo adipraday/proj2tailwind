@@ -1,13 +1,17 @@
-import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { CheckCircleIcon, ExclamationIcon } from "@heroicons/react/solid";
 import { useNavigate } from "react-router-dom";
-import ApiUrl from "../config/ApiUrl";
 import TokenService from "../services/TokenService";
+import { getAvailableTechnician } from "../services/UserServices";
+import { addTechnicianMaintenance } from "../services/MaintenanceServices";
+import { getTeknisiWoMaintenance } from "../services/MaintenanceServices";
+import { hapusDataTeknisiWoMaintenance } from "../services/MaintenanceServices";
+import { getWoMaintenanceById } from "../services/MaintenanceServices";
+import { updateMaintenance } from "../services/MaintenanceServices";
+import { updateProgressMaintenance } from "../services/MaintenanceServices";
 
-const TerbitkanWO = () => {
-  const axiosJWT = axios.create();
+const UpdateWoMaintenance = () => {
   const navigate = useNavigate();
   const { userId, name, jobdesk } = TokenService();
 
@@ -20,8 +24,9 @@ const TerbitkanWO = () => {
   const [id_teknisi, setIdTeknisi] = useState("");
   const [teknisiwos, setTeknisiWO] = useState("");
 
-  const [workorders, setWorkOrders] = useState("");
-  const NoWo = workorders.length > 0 ? workorders[0].no_wo : null;
+  const [maintenances, setMaintenances] = useState("");
+  const [image, setImage] = useState("");
+  const NoWo = maintenances.length > 0 ? maintenances[0].no_wo : null;
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,9 +36,7 @@ const TerbitkanWO = () => {
   const alamat = useRef();
   const contact_person = useRef();
   const email = useRef();
-  const tikor = useRef();
-  const link_tikor = useRef();
-  const paket_berlangganan = useRef();
+  const first_note = useRef();
 
   // form update progress WorkOrder
   const f3userId = useRef();
@@ -41,58 +44,40 @@ const TerbitkanWO = () => {
   const f3no_wo = useRef();
   const f3nama_client = useRef();
   const f3id_pelanggan = useRef();
-  const f3label_fat = useRef();
-  const f3note = useRef();
   const f3status = useRef();
+  const f3last_note = useRef();
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
-    getAvailableTechnician();
-    // eslint-disable-next-line
+    fetchAvailableTechnician();
   }, []);
 
-  const getAvailableTechnician = async () => {
-    try {
-      const resAvailableTechnician = await axiosJWT.get(
-        `${ApiUrl.API_BASE_URL}/getavailabletechnician`
-      );
-      setAvailableTechnician(resAvailableTechnician.data);
-    } catch (error) {
-      console.error("Error fetching available technician:", error);
+  const fetchAvailableTechnician = async () => {
+    const resAvailableTechnician = await getAvailableTechnician();
+    if (resAvailableTechnician) {
+      setAvailableTechnician(resAvailableTechnician);
     }
   };
-
+  ////////////////////////////////////////////////////////
   const addTechnician = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${ApiUrl.API_BASE_URL}/addteknisiwo`, {
+      const response = await addTechnicianMaintenance({
         userId: userId,
         teknisiId: id_teknisi,
         id: id,
       });
 
-      // Assuming your API returns a status like { success: true, data: ... }
-      if (response.data.success) {
-        setIdTeknisi("");
-        setMsg(response.data.msg);
-        setTimeout(() => {
-          setMsg("");
-        }, 30000);
-        window.location.reload(false);
-      } else {
-        // Handle unsuccessful API response
-        setError(response.data.msg);
-        setTimeout(() => {
-          setError("");
-        }, 3000);
-        window.location.reload(false);
-        return alert("Teknisi berhasil ditambahkan ...");
-      }
+      setIdTeknisi("");
+      console.log(response);
+      window.location.reload(false);
+      // Show success alert or perform any other actions
+      alert("Teknisi berhasil ditambahkan ...");
     } catch (error) {
       // Handle network errors or other unexpected errors
       if (error.response) {
-        setError(error.response.data.msg);
+        setError(error.response.msg);
         setTimeout(() => {
           setError("");
         }, 3000);
@@ -101,112 +86,111 @@ const TerbitkanWO = () => {
       }
     }
   };
-
+  ////////////////////////////////////////////////////////
   useEffect(() => {
-    // Check if NoWo is truthy before making the API call
+    // Check if id is truthy before making the API call
     if (id) {
-      getTeknisiWo();
+      fetchTeknisiWo(id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]); // Add NoWo as a dependency to the useEffect dependency array
-  const getTeknisiWo = async () => {
-    const resTeknisiWO = await axiosJWT.get(
-      `${ApiUrl.API_BASE_URL}/getteknisiwo/${id}`
-    );
-    setTeknisiWO(resTeknisiWO.data);
-  };
+  }, [id]); // Add id as a dependency to the useEffect dependency array
 
+  const fetchTeknisiWo = async (id) => {
+    const teknisiWOData = await getTeknisiWoMaintenance(id);
+    if (teknisiWOData) {
+      setTeknisiWO(teknisiWOData);
+    }
+  };
+  ////////////////////////////////////////////////////////
   const hapusDataTeknisiWO = async (another_act_id, act_id) => {
     try {
-      await axios
-        .delete(
-          `${ApiUrl.API_BASE_URL}/deleteteknisiwo/${another_act_id}/${act_id}`
-        )
-        .then((response) => {
-          setMsg(response.data.msg);
-          setTimeout(() => {
-            setMsg("");
-          }, 30000);
-          window.location.reload(false);
-          return alert("Teknisi berhasil dibatalkan ...");
-        });
+      const response = await hapusDataTeknisiWoMaintenance(
+        another_act_id,
+        act_id
+      );
+      // Handle response data if needed
+      console.log(response);
+      window.location.reload(false);
+      // Show success alert or perform any other actions
+      alert("Teknisi berhasil dibatalkan ...");
     } catch (error) {
-      console.log(error);
+      // Handle errors if needed
+      console.error("Error:", error);
     }
   };
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
-    // Fetch the current item data by ID when the component mounts
-    const getWorkOrder = async () => {
-      try {
-        const response = await axios.get(
-          `${ApiUrl.API_BASE_URL}/workorder/${id}`
-        );
-        setWorkOrders(response.data);
-      } catch (error) {
-        console.error("Error fetching item:", error);
-        setError("Error fetching item");
-      }
-    };
-    getWorkOrder();
+    if (id) {
+      fetchWoMaintenances(id);
+    }
   }, [id]);
+
+  const fetchWoMaintenances = async (id) => {
+    const maintenanceData = await getWoMaintenanceById(id);
+    if (maintenanceData) {
+      setMaintenances(maintenanceData);
+    }
+  };
+
+  ////////////////////////////////////////////////////////
 
   const handleUpdate = async (e) => {
     e.preventDefault();
 
     try {
       // Make the API request to update the item
-      const response = await axios.put(
-        `${ApiUrl.API_BASE_URL}/updateworkorder`,
-        {
-          userId: userId,
-          id: id,
-          no_wo: NoWo,
-          nama_client: nama_client.current.value,
-          id_pelanggan: id_pelanggan.current.value,
-          alamat: alamat.current.value,
-          contact_person: contact_person.current.value,
-          email: email.current.value,
-          tikor: tikor.current.value,
-          link_tikor: link_tikor.current.value,
-          paket_berlangganan: paket_berlangganan.current.value,
-        }
-      );
-      setMsg(response.data.msg);
-      return alert("Data WorkOrder telah berhasil diperbaharui");
+      const response = await updateMaintenance({
+        userId: userId,
+        id: id,
+        no_wo: NoWo,
+        nama_client: nama_client.current.value,
+        id_pelanggan: id_pelanggan.current.value,
+        alamat: alamat.current.value,
+        contact_person: contact_person.current.value,
+        email: email.current.value,
+        first_note: first_note.current.value,
+      });
+      console.log(response);
+      alert("Data WO maintenance telah berhasil diperbaharui");
+      setMsg(response.msg);
+      setTimeout(() => {
+        setMsg("");
+      }, 20000);
     } catch (error) {
       console.error("Error updating item:", error);
-      setError("Error updating item");
+      setError("Update data gagal");
     }
   };
+
+  ////////////////////////////////////////////////////////
 
   const updateProgressWo = async (e) => {
     e.preventDefault();
 
+    // Create FormData and append form fields
+    const formData = new FormData();
+    formData.append("userId", f3userId.current.value);
+    formData.append("id", f3id.current.value);
+    formData.append("no_wo", f3no_wo.current.value);
+    formData.append("nama_client", f3nama_client.current.value);
+    formData.append("id_pelanggan", f3id_pelanggan.current.value);
+    formData.append("status", f3status.current.value);
+    formData.append("last_note", f3last_note.current.value);
+    formData.append("image", image); // Append the File object
+
     try {
       // Make the API request to update the item
-      const response = await axios.put(
-        `${ApiUrl.API_BASE_URL}/updateprogresswo`,
-        {
-          userId: f3userId.current.value,
-          id: f3id.current.value,
-          no_wo: f3no_wo.current.value,
-          nama_client: f3nama_client.current.value,
-          id_pelanggan: f3id_pelanggan.current.value,
-          label_fat: f3label_fat.current.value,
-          note: f3note.current.value,
-          status: f3status.current.value,
-        }
-      );
+      const response = await updateProgressMaintenance(formData);
       if (
         f3status.current.value === "Done" ||
         f3status.current.value === "Cancel"
       ) {
-        navigate("/riwayatworkorder");
-        return alert("Status WorkOrder telah berhasil diperbaharui");
+        navigate("/riwayatmaintenance");
+        return alert("Status WO maintenance telah berhasil diperbaharui");
       } else {
-        setMsg(response.data.msg);
-        return alert("Status WorkOrder telah berhasil diperbaharui");
+        setMsg(response.msg);
+        return alert("Status WO maintenance telah berhasil diperbaharui");
       }
     } catch (error) {
       console.error("Error updating item:", error);
@@ -217,7 +201,7 @@ const TerbitkanWO = () => {
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const selesaiTT = () => {
-    navigate("/workorder");
+    navigate("/maintenance");
   };
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,7 +210,7 @@ const TerbitkanWO = () => {
     <>
       <div className="container mx-auto bg-gray-400 p-8 antialiased">
         <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-10">
-          Update Work Order {NoWo}
+          Update WO Maintenance {NoWo}
         </h1>
         <p className="text-sm font-semibold text-right text-gray-800 dark:text-white mb-1">
           {name}
@@ -323,16 +307,17 @@ const TerbitkanWO = () => {
               </div>
             ))}
           </div>
-          <div className="bg-slate-100 p-5 items-center justify-center">
-            <h2>Perbaharui Data Work Order</h2>
 
-            {Object.values(workorders).map((workorder) => (
+          <div className="bg-slate-100 p-5 items-center justify-center">
+            <h2>Perbaharui Data Maintenance</h2>
+
+            {Object.values(maintenances).map((maintenance) => (
               <form
                 className="mt-8 space-y-6"
                 onSubmit={handleUpdate}
-                key={workorder.id}
+                key={maintenance.id}
               >
-                <div key={workorder.id}>
+                <div key={maintenance.id}>
                   <label className="text-slate-500 antialiased">
                     Nama Client
                   </label>
@@ -341,7 +326,7 @@ const TerbitkanWO = () => {
                     className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                     id="f2_nama_client"
                     placeholder="Nama Client"
-                    defaultValue={workorder.nama_client}
+                    defaultValue={maintenance.nama_client}
                     ref={nama_client}
                     required
                   />
@@ -355,7 +340,7 @@ const TerbitkanWO = () => {
                     className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                     id="f2_id_pelanggan"
                     placeholder="ID Pelanggan"
-                    defaultValue={workorder.id_pelanggan}
+                    defaultValue={maintenance.id_pelanggan}
                     ref={id_pelanggan}
                     required
                   />
@@ -367,7 +352,7 @@ const TerbitkanWO = () => {
                     id="f2_alamat"
                     rows="3"
                     placeholder="Alamat"
-                    defaultValue={workorder.alamat}
+                    defaultValue={maintenance.alamat}
                     ref={alamat}
                     required
                   ></textarea>
@@ -382,7 +367,7 @@ const TerbitkanWO = () => {
                     className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                     id="f2_contact_person"
                     placeholder="Contact Number"
-                    defaultValue={workorder.contact_person}
+                    defaultValue={maintenance.contact_person}
                     ref={contact_person}
                     required
                   />
@@ -395,7 +380,7 @@ const TerbitkanWO = () => {
                     className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                     id="f2_email"
                     placeholder="Email"
-                    defaultValue={workorder.email}
+                    defaultValue={maintenance.email}
                     ref={email}
                     required
                   />
@@ -403,48 +388,18 @@ const TerbitkanWO = () => {
                 <br />
                 <div>
                   <label className="text-slate-500 antialiased">
-                    Titik Kordinat
+                    First Note
                   </label>
                   <textarea
                     className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    id="f2_tikor"
-                    rows="3"
-                    placeholder="Titik Kordinat"
-                    defaultValue={workorder.tikor}
-                    ref={tikor}
-                    required
+                    id="f2_first_note"
+                    rows="8"
+                    placeholder="First Note"
+                    ref={first_note}
+                    defaultValue={maintenance.first_note}
                   ></textarea>
                 </div>
                 <br />
-                <div>
-                  <label className="text-slate-500 antialiased">
-                    Link Titik Kordinat
-                  </label>
-                  <input
-                    type="text"
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    id="f2_link_tikor"
-                    placeholder="Link Titik Kordinat"
-                    defaultValue={workorder.link_tikor}
-                    ref={link_tikor}
-                    required
-                  />
-                </div>
-                <br />
-                <div>
-                  <label className="text-slate-500 antialiased">
-                    Paket Berlangganan
-                  </label>
-                  <input
-                    type="text"
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    id="f2_paket_berlangganan"
-                    placeholder="Paket Berlangganan"
-                    defaultValue={workorder.paket_berlangganan}
-                    ref={paket_berlangganan}
-                    required
-                  />
-                </div>
                 <br />
                 {jobdesk === "Lead Network Enginer" && (
                   <button
@@ -453,19 +408,21 @@ const TerbitkanWO = () => {
             rounded-md text-white bg-indigo-600 hover:bg-indigo-700 
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    Simpan Perubahan Data WO
+                    Simpan Perubahan Data Dismantle
                   </button>
                 )}
               </form>
             ))}
           </div>
+
           <div className="bg-slate-100 p-5 items-center justify-center">
-            <h2>Update Progres Report</h2>
-            {Object.values(workorders).map((workorder) => (
+            <h2>Update Report Maintenance</h2>
+            {Object.values(maintenances).map((maintenance) => (
               <form
                 className="mt-8 space-y-6"
+                encType="multipart/form-data"
                 onSubmit={updateProgressWo}
-                key={workorder.id}
+                key={maintenance.id}
               >
                 <input
                   id="f3_userId"
@@ -476,41 +433,27 @@ const TerbitkanWO = () => {
                 <input
                   id="f3_id"
                   type="hidden"
-                  defaultValue={workorder.id}
+                  defaultValue={maintenance.id}
                   ref={f3id}
                 />
                 <input
                   id="f3_no_wo"
                   type="hidden"
-                  defaultValue={workorder.no_wo}
+                  defaultValue={maintenance.no_wo}
                   ref={f3no_wo}
                 />
                 <input
                   id="f3_nama_client"
                   type="hidden"
-                  defaultValue={workorder.nama_client}
+                  defaultValue={maintenance.nama_client}
                   ref={f3nama_client}
                 />
                 <input
                   id="f3_id_pelanggan"
                   type="hidden"
-                  defaultValue={workorder.id_pelanggan}
+                  defaultValue={maintenance.id_pelanggan}
                   ref={f3id_pelanggan}
                 />
-                <div>
-                  <label className="text-slate-500 antialiased">
-                    Tikor FAT Input
-                  </label>
-                  <input
-                    type="text"
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    id="f3_label_fat"
-                    placeholder="Masukkan Tikor FAT Input"
-                    defaultValue={workorder.label_fat}
-                    ref={f3label_fat}
-                    required
-                  />
-                </div>
                 <div>
                   <label className="text-slate-500 antialiased">
                     Progress Status
@@ -531,15 +474,31 @@ const TerbitkanWO = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="text-slate-500 antialiased">Report</label>
+                  <label className="text-slate-500 antialiased">
+                    Last Note
+                  </label>
                   <textarea
                     className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    id="f3_report"
-                    rows="15"
-                    placeholder="Note"
-                    ref={f3note}
-                    defaultValue={workorder.note}
+                    id="f3_last_note"
+                    rows="8"
+                    placeholder="Last Note"
+                    ref={f3last_note}
+                    defaultValue={maintenance.last_note}
+                    required
                   ></textarea>
+                </div>
+                <div>
+                  <label className="text-slate-800">Documentation Image</label>
+                  <input
+                    type="file"
+                    id="f3_image_doc_perangkat"
+                    accept="image/*"
+                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    placeholder="Documentation"
+                    name="image"
+                    onChange={(e) => setImage(e.target.files[0])}
+                    required
+                  />
                 </div>
                 <br />
                 <button
@@ -548,7 +507,7 @@ const TerbitkanWO = () => {
                             rounded-md text-white bg-indigo-600 hover:bg-indigo-700 
                             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Simpan Progress Report
+                  Simpan Report Dismantle
                 </button>
               </form>
             ))}
@@ -559,4 +518,4 @@ const TerbitkanWO = () => {
   );
 };
 
-export default TerbitkanWO;
+export default UpdateWoMaintenance;

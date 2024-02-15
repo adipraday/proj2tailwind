@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import { ViewListIcon, XCircleIcon } from "@heroicons/react/solid";
 import { Dialog, Transition } from "@headlessui/react";
 import { getAvailableFat } from "../services/FatServices";
@@ -26,6 +26,27 @@ const ModalListFat = () => {
   function openModal() {
     setIsOpen(true);
   }
+
+  const textRefs = useRef([]); // Ref for storing input refs
+
+  useEffect(() => {
+    getAvailableFat().then((fats) => {
+      setAvailableFats(fats);
+      // Initialize refs for each input
+      textRefs.current = fats.map(() => React.createRef());
+    });
+  }, []);
+
+  const handleCopyClick = async (index) => {
+    const link_input_fat = textRefs.current[index].current.value;
+    try {
+      // Copy the text to the clipboard
+      await navigator.clipboard.writeText(link_input_fat);
+      return alert("FAT link copied");
+    } catch (err) {
+      console.error("Unable to copy text: ", err);
+    }
+  };
 
   return (
     <>
@@ -86,20 +107,28 @@ const ModalListFat = () => {
                   </Dialog.Title>
                   <div className="mt-2">
                     {availablefats.map((fat, index) => (
-                      <div key={fat.id || index}>
-                        <p>
+                      <div className="mb-3" key={fat.id || index}>
+                        <label id={`copy${fat.id}-${index}`}>
                           {fat.fat_label} / {fat.fat_id} /{" "}
-                          {fat.fat_output_available}
-                        </p>
+                          {fat.fat_output_available}{" "}
+                        </label>
+                        <input
+                          type="hidden"
+                          id={`copy${fat.id}-${index}`}
+                          ref={textRefs.current[index]} // Use the corresponding ref
+                          value={fat.fat_id}
+                        />
                         <button
+                          id={`copy${fat.id}-${index}`}
                           className="inline-block px-6 py-2.5 bg-green-600 
-                            text-white font-medium text-xs leading-tight 
-                            uppercase rounded-full shadow-md hover:bg-green-700 
-                            hover:shadow-lg focus:bg-green-700 focus:shadow-lg 
-                            focus:outline-none focus:ring-0 active:bg-green-green 
-                            active:shadow-lg transition duration-150 ease-in-out"
+                          text-white font-medium text-xs leading-tight 
+                          uppercase rounded-full shadow-md hover:bg-green-700 
+                          hover:shadow-lg focus:bg-green-700 focus:shadow-lg 
+                          focus:outline-none focus:ring-0 active:bg-yellow-800 
+                          active:shadow-lg transition duration-150 ease-in-out"
+                          onClick={() => handleCopyClick(index)} // Pass the index to the click handler
                         >
-                          Copy FAT ID
+                          Copy FAT link
                         </button>
                       </div>
                     ))}

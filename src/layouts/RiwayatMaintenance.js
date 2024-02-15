@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useState, useEffect, Fragment } from "react";
 import {
   UserCircleIcon,
@@ -8,52 +7,47 @@ import {
   InformationCircleIcon,
   XCircleIcon,
 } from "@heroicons/react/solid";
-import ApiUrl from "../config/ApiUrl";
 import { Dialog, Transition } from "@headlessui/react";
 import TokenService from "../services/TokenService";
+import { getHistoryMaintenances } from "../services/MaintenanceServices";
 
-const RiwayatWorkOrder = () => {
+const RiwayatMaintenance = () => {
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  const { name, token } = TokenService();
+  const { name } = TokenService();
   const navigate = useNavigate();
-  const axiosJWT = axios.create();
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   let [isOpen, setIsOpen] = useState(false);
-  const [workorder, setWorkOrder] = useState(null);
+  const [maintenance, setMaintenance] = useState(null);
   function closeModal() {
     setIsOpen(false);
   }
-  function openModal(workorder) {
-    setWorkOrder(workorder);
+  function openModal(maintenance) {
+    setMaintenance(maintenance);
     setIsOpen(true);
   }
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  const [workorders, setWorkOrders] = useState("");
+  const [maintenances, setMaintenances] = useState("");
   useEffect(() => {
-    geRiwayattWorkOrders();
-    // eslint-disable-next-line
+    fetchWoMaintenances();
   }, []);
-  const geRiwayattWorkOrders = async () => {
-    const resWorkOrders = await axiosJWT.get(
-      `${ApiUrl.API_BASE_URL}/riwayatworkorder`,
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-        },
-      }
-    );
-    setWorkOrders(resWorkOrders.data);
+
+  const fetchWoMaintenances = async () => {
+    const maintenanceData = await getHistoryMaintenances();
+    if (maintenanceData) {
+      setMaintenances(maintenanceData);
+    }
   };
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  const BtWorkOrder = () => {
+  const BtMaintenance = () => {
     navigate("/workorder");
   };
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   return (
     <>
       <div className="container mx-auto bg-cyan-700 p-8 antialiased">
         <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-1">
-          Riwayat Pengerjaan WorkOrders
+          Riwayat Pengerjaan Maintenance
         </h1>
         <p className="text-sm font-semibold text-right text-gray-800 dark:text-white mb-1">
           {name}
@@ -62,7 +56,7 @@ const RiwayatWorkOrder = () => {
 
       <div className="mt-2 ml-2">
         <button
-          onClick={BtWorkOrder}
+          onClick={BtMaintenance}
           className="py-2 px-4 border border-transparent text-sm font-medium 
           rounded-md text-white bg-green-400 hover:bg-green-500 
           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-800"
@@ -122,43 +116,40 @@ const RiwayatWorkOrder = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {Object.values(workorders).map((workorder, index) => (
+                    {Object.values(maintenances).map((maintenance, index) => (
                       <tr
                         className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100"
-                        key={workorder.id}
+                        key={maintenance.id}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {index + 1}.
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                           <b>
-                            {workorder.nama_client} / {workorder.id_pelanggan}
+                            {maintenance.nama_client} /{" "}
+                            {maintenance.id_pelanggan}
                           </b>
                           <br />
-                          {workorder.email} / {workorder.contact_person}
+                          {maintenance.email} / {maintenance.contact_person}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          <b>{workorder.alamat}</b>
-                          <br />
-                          {workorder.tikor}
-                          <br />
-                          {workorder.link_tikor}
+                          <b>{maintenance.alamat}</b>
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          <b>{workorder.paket_berlangganan}</b>
+                          <b>Issues note: </b>
+                          {maintenance.first_note}
                           <br />
-                          {workorder.label_fat}
-                          <br />
-                          {workorder.note}
+                          <b>Troubleshoting note: </b>
+                          {maintenance.last_note}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          <b>{workorder.status}</b>
+                          <b>{maintenance.status}</b>
                           <br />
-                          {workorder.updatedAt}
+                          {maintenance.updatedAt}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                           <button
-                            onClick={() => openModal(workorder)}
+                            onClick={() => openModal(maintenance)}
                             className="inline-block px-6 py-2.5 bg-blue-400 
                                                 text-white font-medium text-xs leading-tight 
                                                 uppercase rounded-full shadow-md hover:bg-blue-500 
@@ -178,7 +169,7 @@ const RiwayatWorkOrder = () => {
           </div>
         </div>
 
-        <Transition appear show={isOpen} as={Fragment} data={workorder}>
+        <Transition appear show={isOpen} as={Fragment} data={maintenance}>
           <Dialog as="div" className="relative z-10" onClose={closeModal}>
             <Transition.Child
               as={Fragment}
@@ -216,46 +207,48 @@ const RiwayatWorkOrder = () => {
                         <XCircleIcon className="h-6 w-6" />
                       </button>
                       <br />
-                      Detail Riwayat Pengerjaan
+                      Detail Pengerjaan Dismantle
                     </Dialog.Title>
                     <div className="mt-2">
-                      {workorder && (
-                        <ul className="list-inside ... m-10">
-                          <li className="mb-2">
-                            <b>No. WO : </b> {workorder.no_wo}
-                          </li>
-                          <li className="mb-2">
-                            <b>Nama Client : </b> {workorder.nama_client}
-                          </li>
-                          <li className="mb-2">
-                            <b>ID Pelanggan : </b> {workorder.id_pelanggan}
-                          </li>
-                          <li className="mb-2">
-                            <b>Alamat : </b> {workorder.alamat}
-                          </li>
-                          <li className="mb-2">
-                            <b>Contact Person : </b> {workorder.contact_person}
-                          </li>
-                          <li className="mb-2">
-                            <b>Email : </b> {workorder.email}
-                          </li>
-                          <li className="mb-2">
-                            <b>Tikor : </b> {workorder.tikor}
-                          </li>
-                          <li className="mb-2">
-                            <b>Link Tikor : </b> {workorder.link_tikor}
-                          </li>
-                          <li className="mb-2">
-                            <b>Paket Berlangganan : </b>{" "}
-                            {workorder.paket_berlangganan}
-                          </li>
-                          <li className="mb-2">
-                            <b>FAT Info : </b> {workorder.label_fat}
-                          </li>
-                          <li className="mb-2">
-                            <b>Note : </b> {workorder.note}
-                          </li>
-                        </ul>
+                      {maintenance && (
+                        <>
+                          <ul className="list-inside ... m-10">
+                            <li className="mb-2">
+                              <b>No. WO : </b> {maintenance.no_wo}
+                            </li>
+                            <li className="mb-2">
+                              <b>Nama Client : </b> {maintenance.nama_client}
+                            </li>
+                            <li className="mb-2">
+                              <b>ID Pelanggan : </b> {maintenance.id_pelanggan}
+                            </li>
+                            <li className="mb-2">
+                              <b>Alamat : </b> {maintenance.alamat}
+                            </li>
+                            <li className="mb-2">
+                              <b>Contact Person : </b>{" "}
+                              {maintenance.contact_person}
+                            </li>
+                            <li className="mb-2">
+                              <b>Email : </b> {maintenance.email}
+                            </li>
+                            <li className="mb-2">
+                              <b>Issues Note : </b> {maintenance.first_note}
+                            </li>
+                            <li className="mb-2">
+                              <b>Troubleshoting Note : </b>{" "}
+                              {maintenance.last_note}
+                            </li>
+                            <li className="mb-2">
+                              <b>Update at : </b> {maintenance.updatedAt}
+                            </li>
+                          </ul>
+                          <img
+                            className="w-screen rounded-lg shadow-2xl"
+                            src={`http://localhost:5000/${maintenance.image_doc_perangkat}`}
+                            alt="Documentation"
+                          />
+                        </>
                       )}
                     </div>
 
@@ -279,4 +272,4 @@ const RiwayatWorkOrder = () => {
   );
 };
 
-export default RiwayatWorkOrder;
+export default RiwayatMaintenance;

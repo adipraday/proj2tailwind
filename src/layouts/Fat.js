@@ -1,8 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode";
 import { deleteFat, getFats } from "../services/FatServices";
 import {
   CheckCircleIcon,
@@ -14,64 +12,17 @@ import {
   ArrowCircleUpIcon,
   UsersIcon,
 } from "@heroicons/react/solid";
-import ApiUrl from "../config/ApiUrl";
+import TokenService from "../services/TokenService";
 
 const Fat = () => {
-  const [name, setName] = useState("");
-  const [, setToken] = useState("");
-  const [expire, setExpire] = useState("");
+  const { name } = TokenService();
 
   const [msg, setMsg] = useState("");
   const [error] = useState("");
 
   const navigate = useNavigate();
-  const axiosJWT = axios.create();
 
   const [fats, setFats] = useState([]);
-
-  useEffect(() => {
-    refreshToken();
-    // eslint-disable-next-line
-  }, []);
-
-  const refreshToken = async () => {
-    try {
-      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("jwt"),
-        },
-      });
-      setToken(response.data.accessToken);
-      const decoded = jwt_decode(response.data.accessToken);
-      setName(decoded.name);
-      setExpire(decoded.exp);
-    } catch (error) {
-      if (error.response) {
-        navigate("/");
-      }
-    }
-  };
-
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      const currentDate = new Date();
-      if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt"),
-          },
-        });
-        setToken(response.accessToken);
-        const decoded = jwt_decode(response.data.accessToken);
-        setName(decoded.name);
-        setExpire(decoded.exp);
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
 
   useEffect(() => {
     let mounted = true;
@@ -92,16 +43,21 @@ const Fat = () => {
   };
 
   const handleDeleteFat = (fatId) => {
-    deleteFat(fatId)
-      .then((response) => {
-        // Remove the deleted item from the local state
-        setFats(fats.filter((fat) => fat.id !== fatId));
-        setMsg(response.msg);
-        setTimeout(() => {
-          setMsg("");
-        }, 15000);
-      })
-      .catch((error) => console.error("Error deleting item:", error));
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this data?"
+    );
+    if (isConfirmed) {
+      deleteFat(fatId)
+        .then((response) => {
+          // Remove the deleted item from the local state
+          setFats(fats.filter((fat) => fat.id !== fatId));
+          setMsg(response.msg);
+          setTimeout(() => {
+            setMsg("");
+          }, 15000);
+        })
+        .catch((error) => console.error("Error deleting item:", error));
+    }
   };
 
   return (
@@ -118,11 +74,11 @@ const Fat = () => {
       <div className="container mx-auto bg-gray-50 p-8 antialiased">
         <button
           onClick={() => GtAddFat()}
-          className="inline-block px-6 py-2.5 bg-blue-600 
+          className="inline-block px-6 py-2.5 bg-blue-400 
                                                 text-white font-medium text-xs leading-tight 
-                                                uppercase rounded-full shadow-md hover:bg-blue-700 
+                                                uppercase rounded-full shadow-md hover:bg-blue-500 
                                                 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg 
-                                                focus:outline-none focus:ring-0 active:bg-blue-800 
+                                                focus:outline-none focus:ring-0 active:bg-blue-500 
                                                 active:shadow-lg transition duration-150 ease-in-out"
         >
           + Add FAT
@@ -246,10 +202,10 @@ const Fat = () => {
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                           <button
                             onClick={() => GtUpdateFat(fat.id)}
-                            className="inline-block px-6 py-2.5 bg-green-600 
+                            className="inline-block px-6 py-2.5 bg-green-400 
                                                 text-white font-medium text-xs leading-tight 
-                                                uppercase rounded-full shadow-md hover:bg-green-700 
-                                                hover:shadow-lg focus:bg-green-700 focus:shadow-lg 
+                                                uppercase rounded-full shadow-md hover:bg-green-500 
+                                                hover:shadow-lg focus:bg-green-500 focus:shadow-lg 
                                                 focus:outline-none focus:ring-0 active:bg-green-green 
                                                 active:shadow-lg transition duration-150 ease-in-out"
                           >
@@ -257,11 +213,11 @@ const Fat = () => {
                           </button>
                           <button
                             onClick={() => handleDeleteFat(fat.id)}
-                            className="inline-block px-6 py-2.5 bg-red-600 
+                            className="inline-block px-6 py-2.5 bg-red-400 
                                                 text-white font-medium text-xs leading-tight 
-                                                uppercase rounded-full shadow-md hover:bg-red-700 
+                                                uppercase rounded-full shadow-md hover:bg-red-500 
                                                 hover:shadow-lg focus:bg-red-700 focus:shadow-lg 
-                                                focus:outline-none focus:ring-0 active:bg-green-800 
+                                                focus:outline-none focus:ring-0 active:bg-green-500 
                                                 active:shadow-lg transition duration-150 ease-in-out"
                           >
                             Delete

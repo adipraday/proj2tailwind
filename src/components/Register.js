@@ -17,48 +17,65 @@ const Register = () => {
   const [whatsapp, setWhatsapp] = useState("");
   const [telp, setTelp] = useState("");
   const [email, setEmail] = useState("");
+  const [image, setImage] = useState("");
   const [password, setPassword] = useState("");
   const [confPassword, setConfPassword] = useState("");
 
   const Register = async (e) => {
     e.preventDefault();
+
+    // Ensure password and confirmPassword match
     if (password !== confPassword) {
       setError("Password and confirmPassword do not match");
       return;
     }
-    userRegister({
-      username,
-      name,
-      jobdesk,
-      aktifSejak,
-      whatsapp,
-      telp,
-      email,
-      password,
-      confPassword,
-    })
-      .then((response) => {
-        console.log(response);
-        setUsername("");
-        setName("");
-        setJobdesk("");
-        setAktifSejak("");
-        setWhatsapp("");
-        setTelp("");
-        setEmail("");
-        setPassword("");
-        setConfPassword("");
-        setMsg(response.msg);
-        setTimeout(() => {
-          setMsg("");
-        }, 15000);
-      })
-      .catch((error) => {
-        setError(error.response.data.msg);
-        setTimeout(() => {
-          setError("");
-        }, 3000);
-      });
+
+    // Create FormData and append form fields
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("name", name);
+    formData.append("jobdesk", jobdesk);
+    formData.append("aktifSejak", aktifSejak);
+    formData.append("whatsapp", whatsapp);
+    formData.append("telp", telp);
+    formData.append("email", email);
+    formData.append("image", image); // Append the File object
+    formData.append("password", password);
+    formData.append("confPassword", confPassword);
+
+    try {
+      // Use axios or fetch to send the formData to the server
+      const response = await userRegister(formData);
+
+      // Handle the response
+      console.log(response);
+
+      // Clear form fields and show success message
+      setUsername("");
+      setName("");
+      setJobdesk("");
+      setAktifSejak("");
+      setWhatsapp("");
+      setTelp("");
+      setEmail("");
+      setImage(null); // Reset the file input
+      setPassword("");
+      setConfPassword("");
+      setMsg(response.msg);
+
+      // Clear the success message after 15 seconds
+      setTimeout(() => {
+        setMsg("");
+      }, 15000);
+    } catch (error) {
+      // Handle registration error
+      setError(error.response.data.msg);
+
+      // Clear the error message after 3 seconds
+      setTimeout(() => {
+        setError("");
+      }, 3000);
+    }
   };
 
   return (
@@ -78,6 +95,7 @@ const Register = () => {
           <form
             id="form_register"
             className="mt-8 space-y-6"
+            encType="multipart/form-data"
             onSubmit={Register}
           >
             {msg && (
@@ -218,6 +236,22 @@ const Register = () => {
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <br />
+              <div>
+                <label htmlFor="fr_profilepict" className="text-slate-800">
+                  Profile Pict
+                </label>
+                <input
+                  type="file"
+                  id="fr_profilepict"
+                  accept="image/*"
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Profile Pict"
+                  name="image"
+                  onChange={(e) => setImage(e.target.files[0])}
                   required
                 />
               </div>

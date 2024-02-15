@@ -5,16 +5,7 @@ import { UserIcon, ArrowCircleRightIcon } from "@heroicons/react/solid";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import ApiUrl from "../config/ApiUrl";
-
-const navigation = [
-  { name: "Dashboard", href: "/home", current: false },
-  { name: "Work Order", href: "/workorder", current: false },
-  { name: "Team", href: "/team", current: false },
-  { name: "FAT", href: "/fat", current: false },
-  { name: "BTS", href: "/bts", current: false },
-  { name: "Absensi", href: "/absensi", current: false },
-  { name: "Message", href: "/messagepage", current: false },
-];
+import TokenService from "../services/TokenService";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -23,9 +14,29 @@ function classNames(...classes) {
 const NavBar = () => {
   const navigate = useNavigate();
 
+  const { name, jobdesk, profilepict } = TokenService();
+
+  let navigation = [
+    { name: "Dashboard", href: "/home", current: false },
+    { name: "Team", href: "/team", current: false },
+    { name: "Pemasangan", href: "/workorder", current: false },
+    { name: "Dismantle", href: "/dismantle", current: false },
+    { name: "Maintenance", href: "/maintenance", current: false },
+  ];
+
+  if (jobdesk === "Lead Network Enginer") {
+    // Add BTS link for Network Engineer
+    navigation.push({ name: "BTS", href: "/bts", current: false });
+    navigation.push({ name: "FAT", href: "/fat", current: false });
+    navigation.push({ name: "Absensi", href: "/absensi", current: false });
+    navigation.push({ name: "Message", href: "/messagepage", current: false });
+  }
+
   const Logout = async () => {
     try {
       await axios.delete(`${ApiUrl.API_BASE_URL}/logout`);
+      localStorage.clear();
+      sessionStorage.clear();
       navigate("/");
     } catch (error) {
       console.log(error);
@@ -97,8 +108,8 @@ const NavBar = () => {
                     <Menu.Button className="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                       <span className="sr-only">Open user menu</span>
                       <img
-                        className="h-8 w-8 rounded-full"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                        className="max-h-8 max-w-8 rounded-full"
+                        src={`http://localhost:5000/${profilepict}`}
                         alt=""
                       />
                     </Menu.Button>
@@ -113,6 +124,9 @@ const NavBar = () => {
                     leaveTo="transform opacity-0 scale-95"
                   >
                     <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <p className="ml-7 text-slate-500">
+                        Good day <b>{name}</b>
+                      </p>
                       <Menu.Item>
                         {({ active }) => (
                           <a
@@ -137,7 +151,7 @@ const NavBar = () => {
                             )}
                           >
                             <ArrowCircleRightIcon className="h-7 w-7 fill-red-300 -mb-6" />
-                            <p className="ml-8 text-slate-500">Sign out</p>
+                            <p className="ml-8 text-slate-500">Sign out </p>
                           </button>
                         )}
                       </Menu.Item>

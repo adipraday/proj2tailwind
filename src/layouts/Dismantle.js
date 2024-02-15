@@ -1,36 +1,32 @@
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useState, useEffect } from "react";
+import TokenService from "../services/TokenService";
+import { getWoDismantles } from "../services/DismantleServices";
 import {
   UserCircleIcon,
   MapIcon,
   DocumentAddIcon,
   InformationCircleIcon,
 } from "@heroicons/react/solid";
-import ApiUrl from "../config/ApiUrl";
-import TokenService from "../services/TokenService";
+import { deleteWoDismantle } from "../services/DismantleServices";
 
-const WorkOrder = () => {
+const Dismantle = () => {
+  const { name, jobdesk } = TokenService();
+  const [dismantles, setDismantles] = useState("");
   const navigate = useNavigate();
-  const axiosJWT = axios.create();
-  const { userId, name, jobdesk } = TokenService();
-
-  const [workorders, setWorkOrders] = useState("");
 
   useEffect(() => {
-    getWorkOrder();
-    // eslint-disable-next-line
+    fetchWoDismantles();
   }, []);
 
-  const getWorkOrder = async () => {
-    const resWorkOrders = await axiosJWT.get(
-      `${ApiUrl.API_BASE_URL}/workorders`
-    );
-    setWorkOrders(resWorkOrders.data);
+  const fetchWoDismantles = async () => {
+    const dismantleData = await getWoDismantles();
+    if (dismantleData) {
+      setDismantles(dismantleData);
+    }
   };
 
-  const hapusDataWO = async (id) => {
-    const user_id = userId;
+  const hapusDataDismantle = async (id, userId) => {
     const isConfirmed = window.confirm(
       "Are you sure you want to delete this data?"
     );
@@ -38,35 +34,33 @@ const WorkOrder = () => {
     // Check if the user confirmed
     if (isConfirmed) {
       try {
-        await axios
-          .put(`${ApiUrl.API_BASE_URL}/deleteworkorder/${id}/${user_id}`)
-          .then(() => {
-            window.location.reload(false);
-            return alert("Data telah dihapus");
-          });
+        await deleteWoDismantle(id, userId).then(() => {
+          window.location.reload(false);
+          return alert("Data telah dihapus");
+        });
       } catch (error) {
         console.log(error);
       }
     }
   };
 
-  const terbitkanWO = async (id) => {
-    navigate(`/terbitkanwo/${id}`);
+  const BtWoDismantle = () => {
+    navigate("/addwodismantle");
   };
 
-  const GtAddWo = () => {
-    navigate("/addworkorder");
+  const GtUpdateWoDismantle = async (id) => {
+    navigate(`/updatewodismantle/${id}`);
   };
 
-  const Gtriwayatwo = () => {
-    navigate("/riwayatworkorder");
+  const BtRiwayatDismantle = () => {
+    navigate(`/riwayatdismantle`);
   };
 
   return (
     <>
       <div className="container mx-auto bg-cyan-700 p-8 antialiased">
         <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white">
-          WorkOrders Pemasangan
+          WorkOrders Dismantle
         </h1>
         <p className="text-sm font-semibold text-right text-gray-800 dark:text-white mb-1">
           {name}
@@ -75,19 +69,19 @@ const WorkOrder = () => {
 
       <div className="container flex justify-end mx-auto bg-gray-50 p-8 antialiased">
         <button
+          onClick={BtRiwayatDismantle}
           className="group relative py-2 px-4 border border-transparent text-sm font-medium 
                             rounded-md text-white bg-emerald-400 hover:bg-emerald-500 
                             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-300"
-          onClick={Gtriwayatwo}
         >
-          Lihat Riwayat Pengerjaan Pemasangan
+          Lihat Riwayat Pengerjaan Dismantle
         </button>
       </div>
 
       <div className="container mx-auto bg-gray-50 p-8 antialiased">
         {jobdesk === "Lead Network Enginer" && (
           <button
-            onClick={() => GtAddWo()}
+            onClick={BtWoDismantle}
             className="inline-block px-6 py-2.5 bg-blue-400 
                                                       text-white font-medium text-xs leading-tight 
                                                       rounded-full shadow-md hover:bg-blue-500 
@@ -95,7 +89,7 @@ const WorkOrder = () => {
                                                       focus:outline-none focus:ring-0 active:bg-blue-600 
                                                       active:shadow-lg transition duration-150 ease-in-out"
           >
-            + Add WorkOrder Pemasangan
+            + Add WorkOrder Dismantle
           </button>
         )}
         <div className="flex flex-col">
@@ -148,43 +142,37 @@ const WorkOrder = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {Object.values(workorders).map((workorder, index) => (
+                    {Object.values(dismantles).map((dismantle, index) => (
                       <tr
                         className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100"
-                        key={workorder.id}
+                        key={dismantle.id}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {index + 1}.
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                           <b>
-                            {workorder.nama_client} / {workorder.id_pelanggan}
+                            {dismantle.nama_client} / {dismantle.id_pelanggan}
                           </b>
                           <br />
-                          {workorder.email} / {workorder.contact_person}
+                          {dismantle.email} / {dismantle.contact_person}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          <b>{workorder.alamat}</b>
+                          <b>{dismantle.alamat}</b>
                           <br />
-                          {workorder.tikor}
-                          <br />
-                          {workorder.link_tikor}
+                          {dismantle.input_fat}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          <b>{workorder.paket_berlangganan}</b>
+                          <b>{dismantle.client_note}</b>
                           <br />
-                          {workorder.label_fat}
-                          <br />
-                          {workorder.note}
+                          {dismantle.updatedAt}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          <b>{workorder.status}</b>
-                          <br />
-                          {workorder.updatedAt}
+                          <b>{dismantle.status}</b>
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                           <button
-                            onClick={() => terbitkanWO(workorder.id)}
+                            onClick={() => GtUpdateWoDismantle(dismantle.id)}
                             className="inline-block px-6 py-2.5 bg-green-400 
                                                 text-white font-medium text-xs leading-tight 
                                                 uppercase rounded-full shadow-md hover:bg-green-500 
@@ -196,7 +184,7 @@ const WorkOrder = () => {
                           </button>{" "}
                           {jobdesk === "Lead Network Enginer" && (
                             <button
-                              onClick={() => hapusDataWO(workorder.id)}
+                              onClick={() => hapusDataDismantle(dismantle.id)}
                               className="inline-block px-6 py-2.5 bg-red-400 
                               text-white font-medium text-xs leading-tight 
                               uppercase rounded-full shadow-md hover:bg-red-500 
@@ -221,4 +209,4 @@ const WorkOrder = () => {
   );
 };
 
-export default WorkOrder;
+export default Dismantle;

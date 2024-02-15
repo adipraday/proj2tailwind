@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode";
 import {
   CheckCircleIcon,
   ExclamationIcon,
@@ -11,11 +10,10 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/solid";
 import ApiUrl from "../config/ApiUrl";
+import TokenService from "../services/TokenService";
 
 const Absensi = () => {
-  const [name, setName] = useState("");
-  const [token, setToken] = useState("");
-  const [expire, setExpire] = useState("");
+  const { name, token } = TokenService();
 
   const [msg, setMsg] = useState("");
   const [error] = useState("");
@@ -24,50 +22,6 @@ const Absensi = () => {
 
   const navigate = useNavigate();
   const axiosJWT = axios.create();
-
-  useEffect(() => {
-    refreshToken();
-    // eslint-disable-next-line
-  }, []);
-
-  const refreshToken = async () => {
-    try {
-      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("jwt"),
-        },
-      });
-      setToken(response.data.accessToken);
-      const decoded = jwt_decode(response.data.accessToken);
-      setName(decoded.name);
-      setExpire(decoded.exp);
-    } catch (error) {
-      if (error.response) {
-        navigate("/");
-      }
-    }
-  };
-
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      const currentDate = new Date();
-      if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt"),
-          },
-        });
-        setToken(response.accessToken);
-        const decoded = jwt_decode(response.data.accessToken);
-        setName(decoded.name);
-        setExpire(decoded.exp);
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
 
   useEffect(() => {
     getAbsensis();
@@ -84,19 +38,27 @@ const Absensi = () => {
   };
 
   const hapusDataAbsensi = async (id) => {
-    try {
-      await axios
-        .delete(`${ApiUrl.API_BASE_URL}/deleteabsensi/${id}`)
-        .then((response) => {
-          // getAbsensis()
-          setMsg(response.data.msg);
-          setTimeout(() => {
-            setMsg("");
-          }, 15000);
-          window.location.reload(false);
-        });
-    } catch (error) {
-      console.log(error);
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this data?"
+    );
+
+    // Check if the user confirmed
+    if (isConfirmed) {
+      try {
+        await axios
+          .delete(`${ApiUrl.API_BASE_URL}/deleteabsensi/${id}`)
+          .then((response) => {
+            // getAbsensis()
+            setMsg(response.data.msg);
+            setAbsensis(absensis.filter((absensi) => absensi.id !== id));
+            setTimeout(() => {
+              setMsg("");
+            }, 15000);
+            window.location.reload(false);
+          });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -118,11 +80,11 @@ const Absensi = () => {
       <div className="container mx-auto bg-gray-50 p-8 antialiased">
         <button
           onClick={() => GtAddAbsensi()}
-          className="inline-block px-6 py-2.5 bg-blue-600 
+          className="inline-block px-6 py-2.5 bg-blue-400 
                                                 text-white font-medium text-xs leading-tight 
-                                                uppercase rounded-full shadow-md hover:bg-blue-700 
+                                                uppercase rounded-full shadow-md hover:bg-blue-500 
                                                 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg 
-                                                focus:outline-none focus:ring-0 active:bg-blue-800 
+                                                focus:outline-none focus:ring-0 active:bg-blue-500 
                                                 active:shadow-lg transition duration-150 ease-in-out"
         >
           + Add Absensi
@@ -212,11 +174,11 @@ const Absensi = () => {
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                           <button
                             onClick={() => hapusDataAbsensi(absensi.id)}
-                            className="inline-block px-6 py-2.5 bg-red-600 
+                            className="inline-block px-6 py-2.5 bg-red-400 
                                                 text-white font-medium text-xs leading-tight 
-                                                uppercase rounded-full shadow-md hover:bg-red-700 
+                                                uppercase rounded-full shadow-md hover:bg-red-500 
                                                 hover:shadow-lg focus:bg-red-700 focus:shadow-lg 
-                                                focus:outline-none focus:ring-0 active:bg-green-800 
+                                                focus:outline-none focus:ring-0 active:bg-green-500 
                                                 active:shadow-lg transition duration-150 ease-in-out"
                           >
                             Delete

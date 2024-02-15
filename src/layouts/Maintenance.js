@@ -1,36 +1,34 @@
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useState, useEffect } from "react";
+import TokenService from "../services/TokenService";
+import {
+  getWoMaintenances,
+  deleteWoMaintenance,
+} from "../services/MaintenanceServices";
 import {
   UserCircleIcon,
   MapIcon,
   DocumentAddIcon,
   InformationCircleIcon,
 } from "@heroicons/react/solid";
-import ApiUrl from "../config/ApiUrl";
-import TokenService from "../services/TokenService";
 
-const WorkOrder = () => {
+const Maintenance = () => {
+  const { name, jobdesk } = TokenService();
+  const [maintenances, setMaintenances] = useState("");
   const navigate = useNavigate();
-  const axiosJWT = axios.create();
-  const { userId, name, jobdesk } = TokenService();
-
-  const [workorders, setWorkOrders] = useState("");
 
   useEffect(() => {
-    getWorkOrder();
-    // eslint-disable-next-line
+    fetchWoMaintenances();
   }, []);
 
-  const getWorkOrder = async () => {
-    const resWorkOrders = await axiosJWT.get(
-      `${ApiUrl.API_BASE_URL}/workorders`
-    );
-    setWorkOrders(resWorkOrders.data);
+  const fetchWoMaintenances = async () => {
+    const maintenanceData = await getWoMaintenances();
+    if (maintenanceData) {
+      setMaintenances(maintenanceData);
+    }
   };
 
-  const hapusDataWO = async (id) => {
-    const user_id = userId;
+  const hapusDataMaintenance = async (id, userId) => {
     const isConfirmed = window.confirm(
       "Are you sure you want to delete this data?"
     );
@@ -38,35 +36,33 @@ const WorkOrder = () => {
     // Check if the user confirmed
     if (isConfirmed) {
       try {
-        await axios
-          .put(`${ApiUrl.API_BASE_URL}/deleteworkorder/${id}/${user_id}`)
-          .then(() => {
-            window.location.reload(false);
-            return alert("Data telah dihapus");
-          });
+        await deleteWoMaintenance(id, userId).then(() => {
+          window.location.reload(false);
+          return alert("Data telah dihapus");
+        });
       } catch (error) {
         console.log(error);
       }
     }
   };
 
-  const terbitkanWO = async (id) => {
-    navigate(`/terbitkanwo/${id}`);
+  const BtWoMaintenance = () => {
+    navigate("/addwomaintenance");
   };
 
-  const GtAddWo = () => {
-    navigate("/addworkorder");
+  const GtUpdateWoMaintenance = async (id) => {
+    navigate(`/updatewomaintenance/${id}`);
   };
 
-  const Gtriwayatwo = () => {
-    navigate("/riwayatworkorder");
+  const BtRiwayatMaintenance = () => {
+    navigate(`/riwayatmaintenance`);
   };
 
   return (
     <>
       <div className="container mx-auto bg-cyan-700 p-8 antialiased">
         <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white">
-          WorkOrders Pemasangan
+          WorkOrders Maintenance
         </h1>
         <p className="text-sm font-semibold text-right text-gray-800 dark:text-white mb-1">
           {name}
@@ -75,19 +71,19 @@ const WorkOrder = () => {
 
       <div className="container flex justify-end mx-auto bg-gray-50 p-8 antialiased">
         <button
+          onClick={BtRiwayatMaintenance}
           className="group relative py-2 px-4 border border-transparent text-sm font-medium 
                             rounded-md text-white bg-emerald-400 hover:bg-emerald-500 
                             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-300"
-          onClick={Gtriwayatwo}
         >
-          Lihat Riwayat Pengerjaan Pemasangan
+          Lihat Riwayat Pengerjaan Maintenance
         </button>
       </div>
 
       <div className="container mx-auto bg-gray-50 p-8 antialiased">
         {jobdesk === "Lead Network Enginer" && (
           <button
-            onClick={() => GtAddWo()}
+            onClick={BtWoMaintenance}
             className="inline-block px-6 py-2.5 bg-blue-400 
                                                       text-white font-medium text-xs leading-tight 
                                                       rounded-full shadow-md hover:bg-blue-500 
@@ -95,7 +91,7 @@ const WorkOrder = () => {
                                                       focus:outline-none focus:ring-0 active:bg-blue-600 
                                                       active:shadow-lg transition duration-150 ease-in-out"
           >
-            + Add WorkOrder Pemasangan
+            + Add WorkOrder Maintenance
           </button>
         )}
         <div className="flex flex-col">
@@ -148,43 +144,40 @@ const WorkOrder = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {Object.values(workorders).map((workorder, index) => (
+                    {Object.values(maintenances).map((maintenance, index) => (
                       <tr
                         className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100"
-                        key={workorder.id}
+                        key={maintenance.id}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {index + 1}.
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                           <b>
-                            {workorder.nama_client} / {workorder.id_pelanggan}
+                            {maintenance.nama_client} /{" "}
+                            {maintenance.id_pelanggan}
                           </b>
                           <br />
-                          {workorder.email} / {workorder.contact_person}
+                          {maintenance.email} / {maintenance.contact_person}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          <b>{workorder.alamat}</b>
+                          <b>{maintenance.alamat}</b>
                           <br />
-                          {workorder.tikor}
-                          <br />
-                          {workorder.link_tikor}
+                          {maintenance.input_fat}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          <b>{workorder.paket_berlangganan}</b>
+                          <b>{maintenance.first_note}</b>
                           <br />
-                          {workorder.label_fat}
-                          <br />
-                          {workorder.note}
+                          {maintenance.updatedAt}
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                          <b>{workorder.status}</b>
-                          <br />
-                          {workorder.updatedAt}
+                          <b>{maintenance.status}</b>
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                           <button
-                            onClick={() => terbitkanWO(workorder.id)}
+                            onClick={() =>
+                              GtUpdateWoMaintenance(maintenance.id)
+                            }
                             className="inline-block px-6 py-2.5 bg-green-400 
                                                 text-white font-medium text-xs leading-tight 
                                                 uppercase rounded-full shadow-md hover:bg-green-500 
@@ -196,7 +189,9 @@ const WorkOrder = () => {
                           </button>{" "}
                           {jobdesk === "Lead Network Enginer" && (
                             <button
-                              onClick={() => hapusDataWO(workorder.id)}
+                              onClick={() =>
+                                hapusDataMaintenance(maintenance.id)
+                              }
                               className="inline-block px-6 py-2.5 bg-red-400 
                               text-white font-medium text-xs leading-tight 
                               uppercase rounded-full shadow-md hover:bg-red-500 
@@ -221,4 +216,4 @@ const WorkOrder = () => {
   );
 };
 
-export default WorkOrder;
+export default Maintenance;

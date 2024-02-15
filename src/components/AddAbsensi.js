@@ -1,16 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode";
 import { CheckCircleIcon, ExclamationIcon } from "@heroicons/react/solid";
 import ApiUrl from "../config/ApiUrl";
+import TokenService from "../services/TokenService";
 
 const AddAbsensi = () => {
   const navigate = useNavigate();
-
-  const [, setName] = useState("");
-  const [token, setToken] = useState("");
-  const [expire, setExpire] = useState("");
+  const { name, token } = TokenService();
 
   const [id_user, setId_user] = useState("");
   const [tgl_absensi, setTgl_absensi] = useState("");
@@ -22,50 +19,6 @@ const AddAbsensi = () => {
   const [users, setUsers] = useState([]);
 
   const axiosJWT = axios.create();
-
-  useEffect(() => {
-    refreshToken();
-    // eslint-disable-next-line
-  }, []);
-
-  const refreshToken = async () => {
-    try {
-      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("jwt"),
-        },
-      });
-      setToken(response.data.accessToken);
-      const decoded = jwt_decode(response.data.accessToken);
-      setName(decoded.name);
-      setExpire(decoded.exp);
-    } catch (error) {
-      if (error.response) {
-        navigate("/");
-      }
-    }
-  };
-
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      const currentDate = new Date();
-      if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt"),
-          },
-        });
-        setToken(response.accessToken);
-        const decoded = jwt_decode(response.data.accessToken);
-        setName(decoded.name);
-        setExpire(decoded.exp);
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
 
   useEffect(() => {
     getUsers();
@@ -97,9 +50,7 @@ const AddAbsensi = () => {
           setKeterangan("");
           setNote("");
           setMsg(response.data.msg);
-          setTimeout(() => {
-            setMsg("");
-          }, 15000);
+          navigate("/absensi");
         });
     } catch (error) {
       if (error.response) {
@@ -121,6 +72,9 @@ const AddAbsensi = () => {
         <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-10">
           Add Absensi
         </h1>
+        <p className="text-sm font-semibold text-right text-gray-800 dark:text-white mb-1">
+          {name}
+        </p>
       </div>
 
       <div className="mt-2 ml-2">

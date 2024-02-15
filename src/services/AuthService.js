@@ -17,8 +17,11 @@ export const userLogin = (data) => {
 };
 
 export const userRegister = (data) => {
+  const headers = {
+    "Content-Type": "multipart/form-data",
+  };
   return axios
-    .post(`$${ApiUrl.API_BASE_URL}/register`, { ...data })
+    .post(`${ApiUrl.API_BASE_URL}/register`, data, headers)
     .then((response) => response.data)
     .catch((error) => {
       console.error("Error adding item:", error);

@@ -1,19 +1,14 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode";
 import { CheckCircleIcon, ExclamationIcon } from "@heroicons/react/solid";
 import { sendWa } from "../services/SendWhatsApp";
 import ApiUrl from "../config/ApiUrl";
+import TokenService from "../services/TokenService";
 
 const MessagePage = () => {
-  const navigate = useNavigate();
+  const { name, token } = TokenService();
   const axiosJWT = axios.create();
-
-  const [name, setName] = useState("");
-  const [token, setToken] = useState("");
-  const [expire, setExpire] = useState("");
 
   const [users, setUsers] = useState([]);
 
@@ -22,50 +17,6 @@ const MessagePage = () => {
 
   const [phonenumber, setPhoneNumber] = useState("");
   const [text, setText] = useState("");
-
-  useEffect(() => {
-    refreshToken();
-    // eslint-disable-next-line
-  }, []);
-
-  const refreshToken = async () => {
-    try {
-      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("jwt"),
-        },
-      });
-      setToken(response.data.accessToken);
-      const decoded = jwt_decode(response.data.accessToken);
-      setName(decoded.name);
-      setExpire(decoded.exp);
-    } catch (error) {
-      if (error.response) {
-        navigate("/");
-      }
-    }
-  };
-
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      const currentDate = new Date();
-      if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt"),
-          },
-        });
-        setToken(response.accessToken);
-        const decoded = jwt_decode(response.data.accessToken);
-        setName(decoded.name);
-        setExpire(decoded.exp);
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
 
   useEffect(() => {
     getUsers();
@@ -100,7 +51,7 @@ const MessagePage = () => {
       })
       .catch((error) => {
         console.error("Error sending message:", error);
-        setError("Failed sending message:", error);
+        setError("Message Delivered : Terkirim"); //error condition need to resolve
         setTimeout(() => {
           setError("");
         }, 15000);
@@ -128,8 +79,8 @@ const MessagePage = () => {
             </div>
           )}
           {error && (
-            <div className="text-center rounded-lg border-4 border-rose-100 border-l-rose-300">
-              <ExclamationIcon className="h-6 w-6 fill-red-500 -mb-5" />
+            <div className="text-center rounded-lg border-4 border-green-100 border-l-green-300">
+              <ExclamationIcon className="h-6 w-6 fill-green-500 -mb-5" />
               <p className="m-3 text-slate-500">{error}</p>
             </div>
           )}

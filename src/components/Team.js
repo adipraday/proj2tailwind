@@ -1,8 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode";
 import {
   UserCircleIcon,
   MailIcon,
@@ -12,59 +10,14 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/solid";
 import ApiUrl from "../config/ApiUrl";
+import TokenService from "../services/TokenService";
+import { useNavigate } from "react-router-dom";
 
 const Team = () => {
-  const navigate = useNavigate();
   const axiosJWT = axios.create();
-
-  const [name, setName] = useState("");
-  const [token, setToken] = useState("");
-  const [expire, setExpire] = useState("");
+  const { name, token } = TokenService();
   const [users, setUsers] = useState([]);
-
-  useEffect(() => {
-    refreshToken();
-    // eslint-disable-next-line
-  }, []);
-
-  const refreshToken = async () => {
-    try {
-      const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("jwt"),
-        },
-      });
-      setToken(response.data.accessToken);
-      const decoded = jwt_decode(response.data.accessToken);
-      setName(decoded.name);
-      setExpire(decoded.exp);
-    } catch (error) {
-      if (error.response) {
-        navigate("/");
-      }
-    }
-  };
-
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      const currentDate = new Date();
-      if (expire * 1000 < currentDate.getTime()) {
-        const response = await axios.get(`${ApiUrl.API_BASE_URL}/token`, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt"),
-          },
-        });
-        setToken(response.accessToken);
-        const decoded = jwt_decode(response.data.accessToken);
-        setName(decoded.name);
-        setExpire(decoded.exp);
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
+  const navigate = useNavigate();
 
   useEffect(() => {
     getUsers();
@@ -80,10 +33,14 @@ const Team = () => {
     setUsers(response.data);
   };
 
+  const updateUserData = async (id) => {
+    navigate(`/updateuserdata/${id}`);
+  };
+
   return (
     <>
       <div className="container mx-auto bg-cyan-700 p-8 antialiased">
-        <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white mb-1">
+        <h1 className="text-3xl font-semibold text-center text-gray-800 capitalize lg:text-4xl dark:text-white">
           Team
         </h1>
         <p className="text-sm font-semibold text-right text-gray-800 dark:text-white mb-1">
@@ -147,6 +104,7 @@ const Team = () => {
                         <InformationCircleIcon className="h-7 w-7 fill-blue-500 -mb-6" />
                         <p className="ml-7 text-slate-500">Status</p>
                       </th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -177,6 +135,19 @@ const Team = () => {
                         </td>
                         <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                           {user.status}
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => updateUserData(user.id)}
+                            className="inline-block px-6 py-2.5 bg-green-400 
+                                                text-white font-medium text-xs leading-tight 
+                                                uppercase rounded-full shadow-md hover:bg-green-500 
+                                                hover:shadow-lg focus:bg-green-500 focus:shadow-lg 
+                                                focus:outline-none focus:ring-0 active:bg-yellow-600 
+                                                active:shadow-lg transition duration-150 ease-in-out"
+                          >
+                            Update
+                          </button>
                         </td>
                       </tr>
                     ))}
