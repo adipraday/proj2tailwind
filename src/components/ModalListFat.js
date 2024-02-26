@@ -38,11 +38,11 @@ const ModalListFat = () => {
   }, []);
 
   const handleCopyClick = async (index) => {
-    const link_input_fat = textRefs.current[index].current.value;
+    const label_fat = textRefs.current[index].current.value;
     try {
       // Copy the text to the clipboard
-      await navigator.clipboard.writeText(link_input_fat);
-      return alert("FAT link copied");
+      await navigator.clipboard.writeText(label_fat);
+      return alert("FAT label copied");
     } catch (err) {
       console.error("Unable to copy text: ", err);
     }
@@ -116,7 +116,7 @@ const ModalListFat = () => {
                           type="hidden"
                           id={`copy${fat.id}-${index}`}
                           ref={textRefs.current[index]} // Use the corresponding ref
-                          value={fat.fat_id}
+                          value={fat.fat_label}
                         />
                         <button
                           id={`copy${fat.id}-${index}`}
