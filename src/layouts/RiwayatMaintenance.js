@@ -10,19 +10,23 @@ import {
 import { Dialog, Transition } from "@headlessui/react";
 import TokenService from "../services/TokenService";
 import { getHistoryMaintenances } from "../services/MaintenanceServices";
+import { getDocsBySubject } from "../services/DocsServices";
 
 const RiwayatMaintenance = () => {
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const { name } = TokenService();
   const navigate = useNavigate();
+  const [docs, setDocs] = useState("");
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   let [isOpen, setIsOpen] = useState(false);
   const [maintenance, setMaintenance] = useState(null);
+  const [docsId, setDocsId] = useState(null);
   function closeModal() {
     setIsOpen(false);
   }
   function openModal(maintenance) {
     setMaintenance(maintenance);
+    setDocsId(maintenance.id);
     setIsOpen(true);
   }
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +41,23 @@ const RiwayatMaintenance = () => {
       setMaintenances(maintenanceData);
     }
   };
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    if (docsId) {
+      fetcDocs(docsId);
+    }
+  }, [docsId]);
+
+  const fetcDocs = async (docsId) => {
+    const subject = "WO Maintenance";
+    const docsDatas = await getDocsBySubject(docsId, subject);
+    if (docsDatas) {
+      setDocs(docsDatas);
+    }
+  };
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const BtMaintenance = () => {
     navigate("/workorder");
   };
@@ -243,13 +263,19 @@ const RiwayatMaintenance = () => {
                               <b>Update at : </b> {maintenance.updatedAt}
                             </li>
                           </ul>
-                          <img
-                            className="w-screen rounded-lg shadow-2xl"
-                            src={`http://localhost:5000/${maintenance.image_doc_perangkat}`}
-                            alt="Documentation"
-                          />
                         </>
                       )}
+
+                      {Object.values(docs).map((doc, index) => (
+                        <div className="mb-5" key={index + 1}>
+                          <p>{doc.description}</p>
+                          <img
+                            className="w-screen rounded-lg shadow-2xl"
+                            src={`http://localhost:5000/${doc.file}`}
+                            alt="Documentation"
+                          />
+                        </div>
+                      ))}
                     </div>
 
                     <div className="mt-4">

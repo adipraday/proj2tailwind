@@ -3,16 +3,19 @@ import {
   ExclamationIcon,
   LockClosedIcon,
 } from "@heroicons/react/solid";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { userRegister } from "../services/AuthService";
+import { getTechnicianLeader } from "../services/UserServices";
 
 const Register = () => {
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
+  const [technicianleader, setTechnicianLeader] = useState("");
 
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [jobdesk, setJobdesk] = useState("");
+  const [memberOf, setMemberOf] = useState("");
   const [aktifSejak, setAktifSejak] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [telp, setTelp] = useState("");
@@ -20,6 +23,21 @@ const Register = () => {
   const [image, setImage] = useState("");
   const [password, setPassword] = useState("");
   const [confPassword, setConfPassword] = useState("");
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    fetchTechnicianLeader();
+  }, []);
+
+  const fetchTechnicianLeader = async () => {
+    const resTechnicianLeader = await getTechnicianLeader();
+    if (resTechnicianLeader) {
+      setTechnicianLeader(resTechnicianLeader);
+    }
+  };
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const Register = async (e) => {
     e.preventDefault();
@@ -35,6 +53,7 @@ const Register = () => {
     formData.append("username", username);
     formData.append("name", name);
     formData.append("jobdesk", jobdesk);
+    formData.append("memberOf", memberOf);
     formData.append("aktifSejak", aktifSejak);
     formData.append("whatsapp", whatsapp);
     formData.append("telp", telp);
@@ -180,6 +199,49 @@ const Register = () => {
               </div>
               <br />
               <div>
+                <label htmlFor="fr_memberof" className="text-slate-800">
+                  Member Of
+                </label>
+                <select
+                  id="fr_memberof"
+                  className="form-select appearance-none
+                  block
+                  w-full
+                  px-3
+                  py-1.5
+                  text-base
+                  font-normal
+                  text-gray-700
+                  bg-white bg-clip-padding bg-no-repeat
+                  border border-solid border-gray-300
+                  rounded
+                  transition
+                  ease-in-out
+                  m-0
+                  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                  aria-label="Default select example"
+                  value={memberOf}
+                  onChange={(e) => setMemberOf(e.target.value)}
+                  required
+                >
+                  <option value="" className="text-gray-300">
+                    Pilih Leader
+                  </option>
+                  <option value="0" className="text-gray-400">
+                    Tidak Ada
+                  </option>
+                  {Object.values(technicianleader).map((technicianleader) => (
+                    <option
+                      key={technicianleader.id}
+                      value={technicianleader.id}
+                    >
+                      {technicianleader.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <br />
+              <div>
                 <label htmlFor="fr_asejak" className="text-slate-800">
                   Aktif Sejak
                 </label>
@@ -287,6 +349,8 @@ const Register = () => {
                   required
                 />
               </div>
+              <br />
+              <br />
               <br />
             </div>
 

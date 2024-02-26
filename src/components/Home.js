@@ -145,7 +145,7 @@ const Home = () => {
             <Tab.Panel>
               {Object.values(logactivity).map((logactivity) => (
                 <div
-                  className="bg-blue-50 rounded-lg py-5 px-6 mb-4 text-base text-blue-700 mb-3"
+                  className="bg-blue-50 rounded-lg py-5 px-6 mb-4 text-sm text-base text-blue-700 mb-3"
                   role="alert"
                   key={logactivity.id}
                 >

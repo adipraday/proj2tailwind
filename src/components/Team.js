@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 
 const Team = () => {
   const axiosJWT = axios.create();
-  const { name, token } = TokenService();
+  const { name, jobdesk, token } = TokenService();
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
@@ -137,17 +137,19 @@ const Team = () => {
                           {user.status}
                         </td>
                         <td>
-                          <button
-                            onClick={() => updateUserData(user.id)}
-                            className="inline-block px-6 py-2.5 bg-green-400 
-                                                text-white font-medium text-xs leading-tight 
-                                                uppercase rounded-full shadow-md hover:bg-green-500 
-                                                hover:shadow-lg focus:bg-green-500 focus:shadow-lg 
-                                                focus:outline-none focus:ring-0 active:bg-yellow-600 
-                                                active:shadow-lg transition duration-150 ease-in-out"
-                          >
-                            Update
-                          </button>
+                          {jobdesk === "Lead Network Enginer" && (
+                            <button
+                              onClick={() => updateUserData(user.id)}
+                              className="inline-block px-6 py-2.5 bg-green-400 
+                                      text-white font-medium text-xs leading-tight 
+                                      uppercase rounded-full shadow-md hover:bg-green-500 
+                                      hover:shadow-lg focus:bg-green-500 focus:shadow-lg 
+                                      focus:outline-none focus:ring-0 active:bg-yellow-600 
+                                      active:shadow-lg transition duration-150 ease-in-out"
+                            >
+                              Update
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

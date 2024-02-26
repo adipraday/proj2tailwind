@@ -10,19 +10,23 @@ import {
 import { Dialog, Transition } from "@headlessui/react";
 import TokenService from "../services/TokenService";
 import { getRiwayatDismantles } from "../services/DismantleServices";
+import { getDocsBySubject } from "../services/DocsServices";
 
 const RiwayatDismantle = () => {
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const { name } = TokenService();
   const navigate = useNavigate();
+  const [docs, setDocs] = useState("");
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   let [isOpen, setIsOpen] = useState(false);
   const [dismantle, setDismantle] = useState(null);
+  const [docsId, setDocsId] = useState(null);
   function closeModal() {
     setIsOpen(false);
   }
   function openModal(dismantle) {
     setDismantle(dismantle);
+    setDocsId(dismantle.id);
     setIsOpen(true);
   }
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +41,23 @@ const RiwayatDismantle = () => {
       setDismantles(dismantleData);
     }
   };
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    if (docsId) {
+      fetcDocs(docsId);
+    }
+  }, [docsId]);
+
+  const fetcDocs = async (docsId) => {
+    const subject = "WO Dismantle";
+    const docsDatas = await getDocsBySubject(docsId, subject);
+    if (docsDatas) {
+      setDocs(docsDatas);
+    }
+  };
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const BtWorkOrder = () => {
     navigate("/workorder");
   };
@@ -247,13 +267,19 @@ const RiwayatDismantle = () => {
                               <b>Update at : </b> {dismantle.updatedAt}
                             </li>
                           </ul>
-                          <img
-                            className="w-screen rounded-lg shadow-2xl"
-                            src={`http://localhost:5000/${dismantle.image_doc_perangkat}`}
-                            alt="Documentation"
-                          />
                         </>
                       )}
+
+                      {Object.values(docs).map((doc, index) => (
+                        <div className="mb-5" key={index + 1}>
+                          <p>{doc.description}</p>
+                          <img
+                            className="w-screen rounded-lg shadow-2xl"
+                            src={`http://localhost:5000/${doc.file}`}
+                            alt="Documentation"
+                          />
+                        </div>
+                      ))}
                     </div>
 
                     <div className="mt-4">

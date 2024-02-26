@@ -19,6 +19,20 @@ export { getAvailableTechnician };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const getTechnicianLeader = async () => {
+  try {
+    const resTechnicianLeader = await axiosJWT.get(
+      `${ApiUrl.API_BASE_URL}/gettechnicianleader`
+    );
+    return resTechnicianLeader.data;
+  } catch (error) {
+    console.error("Error fetching available technician:", error);
+  }
+};
+export { getTechnicianLeader };
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 const getUserInfo = async (id) => {
   try {
     const resUserInfo = await axiosJWT.get(
@@ -53,6 +67,20 @@ export const updateProfilePict = (data) => {
   };
   return axios
     .put(`${ApiUrl.API_BASE_URL}/updateprofilepict`, data, headers)
+    .then((response) => {
+      return response.data; // Return the data to handle in the component
+    })
+    .catch((error) => {
+      console.error("Error adding item:", error);
+      throw error; // Re-throw the error to handle it in the component
+    });
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const getWorkingStatus = (itemData) => {
+  return axios
+    .put(`${ApiUrl.API_BASE_URL}/workingstatus`, { ...itemData })
     .then((response) => {
       return response.data; // Return the data to handle in the component
     })

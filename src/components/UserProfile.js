@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { CheckCircleIcon, ExclamationIcon } from "@heroicons/react/solid";
 import { updateProfilePict } from "../services/UserServices";
 import { getUserInfo } from "../services/UserServices";
+import ApiUrl from "../config/ApiUrl";
 
 const UserProfile = () => {
   const { userId, name, email, jobdesk, profilepict } = TokenService();
@@ -73,7 +74,7 @@ const UserProfile = () => {
       <div className="container grid grid-flow-row auto-rows-max flex items-center justify-center mx-auto bg-gray-50 p-8 antialiased">
         <img
           className="w-80 rounded-lg m-5 shadow-2xl"
-          src={`http://localhost:5000/${profilepict}`}
+          src={`${ApiUrl.API_BASE_URL}/${profilepict}`}
           alt=""
         />
         <ul className="list-inside">

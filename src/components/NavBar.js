@@ -22,13 +22,13 @@ const NavBar = () => {
     { name: "Pemasangan", href: "/workorder", current: false },
     { name: "Dismantle", href: "/dismantle", current: false },
     { name: "Maintenance", href: "/maintenance", current: false },
+    { name: "Absensi", href: "/absensi", current: false },
   ];
 
   if (jobdesk === "Lead Network Enginer") {
     // Add BTS link for Network Engineer
     navigation.push({ name: "BTS", href: "/bts", current: false });
     navigation.push({ name: "FAT", href: "/fat", current: false });
-    navigation.push({ name: "Absensi", href: "/absensi", current: false });
     navigation.push({ name: "Message", href: "/messagepage", current: false });
   }
 
@@ -109,7 +109,7 @@ const NavBar = () => {
                       <span className="sr-only">Open user menu</span>
                       <img
                         className="max-h-8 max-w-8 rounded-full"
-                        src={`http://localhost:5000/${profilepict}`}
+                        src={`${ApiUrl.API_BASE_URL}/${profilepict}`}
                         alt=""
                       />
                     </Menu.Button>

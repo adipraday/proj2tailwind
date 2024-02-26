@@ -11,20 +11,24 @@ import {
 import ApiUrl from "../config/ApiUrl";
 import { Dialog, Transition } from "@headlessui/react";
 import TokenService from "../services/TokenService";
+import { getDocsBySubject } from "../services/DocsServices";
 
 const RiwayatWorkOrder = () => {
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const { name, token } = TokenService();
   const navigate = useNavigate();
   const axiosJWT = axios.create();
+  const [docs, setDocs] = useState("");
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   let [isOpen, setIsOpen] = useState(false);
   const [workorder, setWorkOrder] = useState(null);
+  const [docsId, setDocsId] = useState(null);
   function closeModal() {
     setIsOpen(false);
   }
   function openModal(workorder) {
     setWorkOrder(workorder);
+    setDocsId(workorder.id);
     setIsOpen(true);
   }
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +48,23 @@ const RiwayatWorkOrder = () => {
     );
     setWorkOrders(resWorkOrders.data);
   };
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    if (docsId) {
+      fetcDocs(docsId);
+    }
+  }, [docsId]);
+
+  const fetcDocs = async (docsId) => {
+    const subject = "WO Pemasangan";
+    const docsDatas = await getDocsBySubject(docsId, subject);
+    if (docsDatas) {
+      setDocs(docsDatas);
+    }
+  };
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const BtWorkOrder = () => {
     navigate("/workorder");
   };
@@ -257,6 +277,16 @@ const RiwayatWorkOrder = () => {
                           </li>
                         </ul>
                       )}
+                      {Object.values(docs).map((doc, index) => (
+                        <div className="mb-5" key={index + 1}>
+                          <p>{doc.description}</p>
+                          <img
+                            className="w-screen rounded-lg shadow-2xl"
+                            src={`http://localhost:5000/${doc.file}`}
+                            alt="Documentation"
+                          />
+                        </div>
+                      ))}
                     </div>
 
                     <div className="mt-4">
